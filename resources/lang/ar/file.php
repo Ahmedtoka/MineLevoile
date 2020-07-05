@@ -95,7 +95,7 @@ return [
 	"The correct column order is" => "ترتيب العمود الصحيح هو",
 	"and you must follow this" => "ويجب أن تتبع هذا",
 	"All columns are required" => "كل الأعمدة مطلوبة",
-	"Biller" => "بيلر",
+	"Biller" => "نةع الحساب",
 	"From" => "من عند",
 	"To" => "إلى",
 	"Created By" => "صنع من قبل",

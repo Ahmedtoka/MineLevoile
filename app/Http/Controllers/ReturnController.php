@@ -180,7 +180,7 @@ class ReturnController extends Controller
         //return dd($data);
         $data['reference_no'] = 'rr-' . date("Ymd") . '-'. date("his");
         $data['user_id'] = Auth::id();
-        $lims_account_data = Account::where('is_default', true)->first();
+        $lims_account_data = Account::where('warehouse_id', Auth::user()->warehouse_id)->first();
         $data['account_id'] = $lims_account_data->id;
         $document = $request->document;
         if ($document) {

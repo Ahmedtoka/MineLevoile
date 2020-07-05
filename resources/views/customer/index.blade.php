@@ -131,7 +131,7 @@
             <div class="form-group">
                 <input type="hidden" name="customer_id">
                 <label>{{trans('file.Amount')}} *</label>
-                <input type="number" name="amount" step="any" class="form-control" required>
+                <input type="text" name="amount" step="any" class="form-control" required>
             </div>
             <div class="form-group">
                 <label>{{trans('file.Note')}}</label>

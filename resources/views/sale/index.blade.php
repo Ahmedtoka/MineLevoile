@@ -21,6 +21,8 @@
                     <th>{{trans('file.reference')}}</th>
                     <th>{{trans('file.Biller')}}</th>
                     <th>{{trans('file.customer')}}</th>
+                    <th>{{trans('file.warehouse')}}</th>
+                    <th>{{trans('file.cashier')}}</th>
                     <th>{{trans('file.Sale Status')}}</th>
                     <th>{{trans('file.Payment Status')}}</th>
                     <th>{{trans('file.grand total')}}</th>
@@ -674,6 +676,8 @@
             {"data": "reference_no"},
             {"data": "biller"},
             {"data": "customer"},
+            {"data": "warehouse"},
+            {"data": "cashier"},
             {"data": "sale_status"},
             {"data": "payment_status"},
             {"data": "grand_total"},

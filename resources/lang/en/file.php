@@ -96,7 +96,7 @@ return [
 	'The correct column order is' => 'The correct column order is',
 	'and you must follow this' => 'and you must follow this',
 	'All columns are required' => 'All columns are required',
-	'Biller' => 'Biller',
+	'Biller' => 'Account Type',
 	'From' => 'From',
 	'To' => 'To',
 	'Created By' => 'Created By',

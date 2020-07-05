@@ -96,7 +96,7 @@
                       
                       <div class="col-md-6 form-group">
                           <label>{{trans('file.Amount')}} *</label>
-                          <input type="number" name="amount" class="form-control" step="any" required>
+                          <input type="text" name="amount" class="form-control" step="any" required>
                       </div>
                   </div>
                   <div class="form-group">

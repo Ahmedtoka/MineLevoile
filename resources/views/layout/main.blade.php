@@ -903,7 +903,7 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label>{{trans('file.Amount')}} *</label>
-                            <input type="number" name="amount" step="any" required class="form-control">
+                            <input type="text" name="amount" step="any" required class="form-control">
                         </div>
                         <div class="col-md-6 form-group">
                             <label> {{trans('file.Account')}}</label>
@@ -958,7 +958,7 @@
                       </div>
                       <div class="form-group">
                           <label>{{trans('file.Initial Balance')}}</label>
-                          <input type="number" name="initial_balance" step="any" class="form-control">
+                          <input type="text" name="initial_balance" step="any" class="form-control">
                       </div>
                       <div class="form-group">
                           <label>{{trans('file.Note')}}</label>

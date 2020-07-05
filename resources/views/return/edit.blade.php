@@ -40,9 +40,17 @@
                                             <label>{{trans('file.Warehouse')}} *</label>
                                             <input type="hidden" name="warehouse_id_hidden" value="{{$lims_return_data->warehouse_id}}" />
                                             <select required id="warehouse_id" name="warehouse_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select warehouse...">
-                                                @foreach($lims_warehouse_list as $warehouse)
-                                                <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
-                                                @endforeach
+                                                @if(Auth::user()->warehouse_id)
+                                                    @foreach($lims_warehouse_list as $warehouse)
+                                                      @if($warehouse->id == Auth::user()->warehouse_id)
+                                                      <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
+                                                      @endif
+                                                    @endforeach       
+                                                  @else
+                                                    @foreach($lims_warehouse_list as $warehouse)
+                                                      <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </div>
                                     </div>
