@@ -129,7 +129,8 @@ class ProductController extends Controller
                 $nestedData['key'] = $key;
                 $product_image = explode(",", $product->image);
                 $product_image = htmlspecialchars($product_image[0]);
-                $nestedData['image'] = '<img src="'.url('images/product', $product_image).'" height="80" width="80">';
+                $product_image = $product->wp_img ? $product->wp_img : url('images/product', $product_image);
+                $nestedData['image'] = '<img src="'.$product_image.'" height="80" width="80">';
                 $nestedData['name'] = $product->name;
                 $nestedData['code'] = $product->code;
                 if($product->brand_id)
@@ -175,7 +176,7 @@ class ProductController extends Controller
                 else
                     $tax_method = trans('file.Inclusive');
 
-                $nestedData['product'] = array( '[ "'.$product->type.'"', ' "'.$product->name.'"', ' "'.$product->code.'"', ' "'.$nestedData['brand'].'"', ' "'.$nestedData['category'].'"', ' "'.$nestedData['unit'].'"', ' "'.$product->cost.'"', ' "'.$product->price.'"', ' "'.$tax.'"', ' "'.$tax_method.'"', ' "'.$product->alert_quantity.'"', ' "'.preg_replace('/\s+/S', " ", $product->product_details).'"', ' "'.$product->id.'"', ' "'.$product->product_list.'"', ' "'.$product->qty_list.'"', ' "'.$product->price_list.'"', ' "'.$product->qty.'"', ' "'.$product->image.'"]'
+                $nestedData['product'] = array( '[ "'.$product->type.'"', ' "'.$product->name.'"', ' "'.$product->code.'"', ' "'.$nestedData['brand'].'"', ' "'.$nestedData['category'].'"', ' "'.$nestedData['unit'].'"', ' "'.$product->cost.'"', ' "'.$product->price.'"', ' "'.$tax.'"', ' "'.$tax_method.'"', ' "'.$product->alert_quantity.'"', ' "'.preg_replace('/\s+/S', " ", $product->product_details).'"', ' "'.$product->id.'"', ' "'.$product->product_list.'"', ' "'.$product->qty_list.'"', ' "'.$product->price_list.'"', ' "'.$product->qty.'"', ' "'.$product_image.'"]'
                 );
                 //$nestedData['imagedata'] = DNS1D::getBarcodePNG($product->code, $product->barcode_symbology);
                 $data[] = $nestedData;
@@ -601,6 +602,132 @@ class ProductController extends Controller
                 $lims_product_variant_data->additional_price = $data['variantprice'];
                 $lims_product_variant_data->qty = 0;
                 $lims_product_variant_data->save();
+            }
+           
+         }
+         return redirect('products')->with('import_message', 'Product imported successfully');
+    }
+
+    public function importWpProducts(Request $request)
+    {   
+        //get file
+        $upload=$request->file('file');
+        $ext = pathinfo($upload->getClientOriginalName(), PATHINFO_EXTENSION);
+        if($ext != 'csv')
+            return redirect()->back()->with('message', 'Please upload a CSV file');
+
+        $filePath=$upload->getRealPath();
+        //open and read
+        $file=fopen($filePath, 'r');
+        $header= fgetcsv($file);
+        $escapedHeader=[];
+        //validate
+        foreach ($header as $key => $value) {
+            $lheader=strtolower($value);
+            $escapedItem=preg_replace('/[^a-z]/', '', $lheader);
+            array_push($escapedHeader, $escapedItem);
+        }
+        $key = 0;
+        //looping through other columns
+        while($columns=fgetcsv($file))
+        {
+            foreach ($columns as $key => $value) {
+                $value=preg_replace('/\D/','',$value);
+            }
+            $data= array_combine($escapedHeader, $columns);
+
+
+            if($data['parentproductid'] == 0) {
+                //Add Simple product first
+                
+                $categories  = explode('>', $data['productcategories']);
+
+                foreach ($categories as $category) {
+                    Category::firstOrCreate(['name' => $category, 'is_active' => true]);
+                }
+                //get latest category child to attach to
+                $lims_category_data = Category::where('name', end($categories))->first();
+
+                $lims_unit_data = isset($data['unitcode']) ? Unit::where('unit_code', isset($data['unitcode']))->first() : 'pc';
+
+                $product = Product::firstOrNew([ 'name'=>$data['title'], 'is_active'=>true ]);
+                $wp_img = explode('|', $data['wpimg']);
+                if(isset($data['image']))
+                    $product->image = $data['image'];
+                else
+                    $product->image = '';
+                    $product->wp_img = $wp_img[0]; //get the first image
+                $product->name = $data['title'];
+                $product->code = $data['sku'];
+                $product->type = 'standard';
+                $product->is_variant = $data['producttype'] == 'variable' ? 1 : '';
+                $product->barcode_symbology = 'C128';
+                $product->brand_id = null;
+                $product->category_id = $lims_category_data->id;
+                $product->unit_id = 1;
+                $product->purchase_unit_id = 1;
+                $product->sale_unit_id = 1;
+                $product->cost = $data['price'] / 2;
+                $product->price = $data['price'];
+                $product->tax_method = 1;
+                $product->qty = 0;
+                $product->wp_ref = $data['id'];
+                $product->product_details = $data['content'];
+                $product->is_active = true;
+                $product->save();
+            }           
+         }
+         return redirect('products')->with('import_message', 'Product imported successfully');
+    }
+
+    public function importWpProductsVariable(Request $request)
+    {   
+        //get file
+        $upload=$request->file('file');
+        $ext = pathinfo($upload->getClientOriginalName(), PATHINFO_EXTENSION);
+        if($ext != 'csv')
+            return redirect()->back()->with('message', 'Please upload a CSV file');
+
+        $filePath=$upload->getRealPath();
+        //open and read
+        $file=fopen($filePath, 'r');
+        $header= fgetcsv($file);
+        $escapedHeader=[];
+        //validate
+        foreach ($header as $key => $value) {
+            $lheader=strtolower($value);
+            $escapedItem=preg_replace('/[^a-z]/', '', $lheader);
+            array_push($escapedHeader, $escapedItem);
+        }
+        $key = 0;
+
+        //looping through other columns
+        while($columns=fgetcsv($file))
+        {
+            foreach ($columns as $key => $value) {
+                $value=preg_replace('/\D/','',$value);
+            }
+            $data = array_combine($escapedHeader, $columns);
+
+            if($data['parentproductid'] != 0 && $data['producttype'] == 'variable') {
+                
+                $lims_product_data = Product::where('wp_ref', $data['parentproductid'])->first();
+
+                if($lims_product_data) {
+                    
+                    $lims_variant_data = Variant::firstOrCreate(['name' => $data['variantcode']]);
+                    $lims_variant_data->name = sprintf("%02d", $data['variantcode']);
+                    $lims_variant_data->save();
+                    $lims_product_variant_data = new ProductVariant;             
+                    $lims_product_variant_data->product_id = $lims_product_data->id;
+                    $lims_product_variant_data->variant_id = $lims_variant_data->id;
+                    $lims_product_variant_data->position = $key + 1;
+                    $lims_product_variant_data->item_code = $data['sku'];
+                    $lims_product_variant_data->additional_price = $data['price'];
+                    $lims_product_variant_data->qty = 0;
+                    $lims_product_variant_data->image = $data['wpimg'];
+                    $lims_product_variant_data->save();
+                }
             }
            
          }
