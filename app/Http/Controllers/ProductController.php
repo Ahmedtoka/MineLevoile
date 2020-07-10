@@ -630,12 +630,11 @@ class ProductController extends Controller
         $key = 0;
         //looping through other columns
         while($columns=fgetcsv($file))
-        {
+        {   
             foreach ($columns as $key => $value) {
                 $value=preg_replace('/\D/','',$value);
             }
             $data= array_combine($escapedHeader, $columns);
-
 
             if($data['parentproductid'] == 0) {
                 //Add Simple product first
@@ -650,31 +649,34 @@ class ProductController extends Controller
 
                 $lims_unit_data = isset($data['unitcode']) ? Unit::where('unit_code', isset($data['unitcode']))->first() : 'pc';
 
-                $product = Product::firstOrNew([ 'name'=>$data['title'], 'is_active'=>true ]);
-                $wp_img = explode('|', $data['wpimg']);
-                if(isset($data['image']))
-                    $product->image = $data['image'];
-                else
-                    $product->image = '';
-                    $product->wp_img = $wp_img[0]; //get the first image
-                $product->name = $data['title'];
-                $product->code = $data['sku'];
-                $product->type = 'standard';
-                $product->is_variant = $data['producttype'] == 'variable' ? 1 : '';
-                $product->barcode_symbology = 'C128';
-                $product->brand_id = null;
-                $product->category_id = $lims_category_data->id;
-                $product->unit_id = 1;
-                $product->purchase_unit_id = 1;
-                $product->sale_unit_id = 1;
-                $product->cost = $data['price'] / 2;
-                $product->price = $data['price'];
-                $product->tax_method = 1;
-                $product->qty = 0;
-                $product->wp_ref = $data['id'];
-                $product->product_details = $data['content'];
-                $product->is_active = true;
-                $product->save();
+                $product = new Product;
+                $productExist = Product::where('code', $data['sku'])->first();
+                if(!$productExist) {
+                    $wp_img = explode('|', $data['wpimg']);
+                    if(isset($data['image']))
+                        $product->image = $data['image'];
+                    else
+                        $product->image = '';
+                        $product->wp_img = $wp_img[0]; //get the first image
+                    $product->name = $data['title'];
+                    $product->code = $data['sku'];
+                    $product->type = 'standard';
+                    $product->is_variant = $data['producttype'] == 'variable' ? 1 : '';
+                    $product->barcode_symbology = 'C128';
+                    $product->brand_id = null;
+                    $product->category_id = $lims_category_data->id;
+                    $product->unit_id = 1;
+                    $product->purchase_unit_id = 1;
+                    $product->sale_unit_id = 1;
+                    $product->cost = $data['price'] / 2;
+                    $product->price = $data['price'];
+                    $product->tax_method = 1;
+                    $product->qty = 0;
+                    $product->wp_ref = $data['id'];
+                    $product->product_details = $data['content'];
+                    $product->is_active = true;
+                    $product->save();
+                }
             }           
          }
          return redirect('products')->with('import_message', 'Product imported successfully');
@@ -714,7 +716,7 @@ class ProductController extends Controller
                 $lims_product_data = Product::where('wp_ref', $data['parentproductid'])->first();
 
                 if($lims_product_data) {
-                    
+
                     $lims_variant_data = Variant::firstOrCreate(['name' => $data['variantcode']]);
                     $lims_variant_data->name = sprintf("%02d", $data['variantcode']);
                     $lims_variant_data->save();

@@ -742,7 +742,8 @@ class SaleController extends Controller
         $product_data = [];
         //product without variant
         foreach ($lims_product_warehouse_data as $product_warehouse) 
-        {
+        {   
+            dd($lims_product_data);
             $product_qty[] = $product_warehouse->qty;
             $lims_product_data = Product::find($product_warehouse->product_id);
             $product_code[] =  $lims_product_data->code;

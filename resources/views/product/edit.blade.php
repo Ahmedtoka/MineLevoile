@@ -255,6 +255,7 @@
                                             <thead>
                                                 <tr>
                                                     <th><i class="dripicons-view-apps"></i></th>
+                                                    <th>{{trans('file.Image')}}</th>
                                                     <th>{{trans('file.name')}}</th>
                                                     <th>{{trans('file.Item Code')}}</th>
                                                     <th>{{trans('file.Additional Price')}}</th>
@@ -269,6 +270,7 @@
                                                         <input type="hidden" name="product_variant_id[]" value="{{$variant->pivot['id']}}">
                                                         <input type="hidden" name="variant_id[]" value="{{$variant->pivot['variant_id']}}">
                                                     </td>
+                                                    <td><img src="{{$variant->pivot['image']}}" width="90" height="90"></td>
                                                     <td><input type="text" class="form-control" name="variant_name[]" value="{{$variant->name}}" /></td>
                                                     <td><input type="text" class="form-control" name="item_code[]" value="{{$variant->pivot['item_code']}}" /></td>
                                                     <td><input type="text" class="form-control" name="additional_price[]" value="{{$variant->pivot['additional_price']}}" step="any" /></td>
