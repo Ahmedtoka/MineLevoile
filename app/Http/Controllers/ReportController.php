@@ -48,12 +48,25 @@ class ReportController extends Controller
     {
         $role = Role::find(Auth::user()->role_id);
         if($role->hasPermissionTo('warehouse-stock-report')){
-            $total_item = DB::table('product_warehouse')
+
+            if(Auth::user()->hasRole('Admin')) {
+                $total_item = DB::table('product_warehouse')
                         ->join('products', 'product_warehouse.product_id', '=', 'products.id')
                         ->where([
                             ['products.is_active', true],
                             ['product_warehouse.qty', '>' , 0]
                         ])->count();
+            }elseif(Auth::user()->hasRole('Branch Supervisor')) {
+                $total_item = DB::table('product_warehouse')
+                        ->join('products', 'product_warehouse.product_id', '=', 'products.id')
+                        ->where([
+                            ['products.is_active', true],
+                            ['product_warehouse.qty', '>' , 0],
+                            ['product_warehouse.warehouse_id', Auth::user()->warehouse_id]
+                        ])->count();
+            }else {
+                $total_item = 0;
+            }
 
             $total_qty = Product::where('is_active', true)->sum('qty');
             $total_price = DB::table('products')->where('is_active', true)->sum(DB::raw('price * qty'));
@@ -645,10 +658,11 @@ class ReportController extends Controller
 
                 if($warehouse_id == 0) {
                     if($product->is_variant){
+
                         $variant_id_all = Product_Sale::distinct('variant_id')->where('product_id', $product->id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->pluck('variant_id');
                         //return $lims_product_sale_data;
+
                     }
-                    else
                         $lims_product_sale_data = Product_Sale::where('product_id', $product->id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->first();
                 }
                 else {

@@ -30,6 +30,16 @@ class Sale extends Model
     	return $this->belongsTo('App\User');
     }
 
+    public function coupon()
+    {
+        return $this->belongsTo('App\Coupon');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne('App\Payment');
+    }
+
     // public function cashRegisterTransaction()
     // {
     //     return $this->belongsTo('App\CashRegisterTransaction');

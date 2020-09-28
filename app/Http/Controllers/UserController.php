@@ -85,7 +85,9 @@ class UserController extends Controller
             $data['is_active'] = false;
         $data['is_deleted'] = false;
         $data['password'] = bcrypt($data['password']);
-        User::create($data);
+        $user = User::create($data);
+        $role = Role::where('id', request()->role_id)->first();
+        $user->assignRole($role->name);
         return redirect('user')->with('message1', $message); 
     }
 
@@ -131,6 +133,8 @@ class UserController extends Controller
             $input['password'] = bcrypt($request['password']);
         $lims_user_data = User::find($id);
         $lims_user_data->update($input);
+        $role = Role::where('id', request()->role_id)->first();
+        $lims_user_data->syncRoles($role->name);
         return redirect('user')->with('message2', 'Data updated successfullly');
     }
 

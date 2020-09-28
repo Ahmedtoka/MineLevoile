@@ -60,10 +60,45 @@ class SaleController extends Controller
             if(empty($all_permission))
                 $all_permission[] = 'dummy text';
             
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $lims_sale_all = Sale::orderBy('id', 'desc')->where('user_id', Auth::id())->get();
+            elseif(Auth::user()->hasRole('Branch Supervisor'))
+                $lims_sale_all = Sale::orderBy('id', 'desc')->where('warehouse_id', Auth::user()->warehouse_id)->get();
             else
                 $lims_sale_all = Sale::orderBy('id', 'desc')->get();
+
+            $lims_gift_card_list = GiftCard::where("is_active", true)->get();
+            $lims_pos_setting_data = PosSetting::latest()->first();
+            $lims_account_list = Account::where('is_active', true)->get();
+
+            return view('sale.index',compact('lims_sale_all', 'lims_gift_card_list', 'lims_pos_setting_data', 'lims_account_list', 'all_permission'));
+        }
+        else
+            return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
+    }
+
+    public function cashSales()
+    {      
+        $role = Role::find(Auth::user()->role_id);
+        if($role->hasPermissionTo('sales-index')) {
+            $permissions = Role::findByName($role->name)->permissions;
+            foreach ($permissions as $permission)
+                $all_permission[] = $permission->name;
+            if(empty($all_permission))
+                $all_permission[] = 'dummy text';
+            
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
+                $lims_sale_all = Sale::whereHas('payment', function($q){
+                    $q->where('paying_method', 'Cash');
+                })->orderBy('id', 'desc')->where('user_id', Auth::id())->get();
+            elseif(Auth::user()->hasRole('Branch Supervisor'))
+                $lims_sale_all = Sale::whereHas('payment', function($q){
+                    $q->where('paying_method', 'Cash');
+                })->orderBy('id', 'desc')->where('warehouse_id', Auth::user()->warehouse_id)->get();
+            else
+                $lims_sale_all = Sale::whereHas('payment', function($q){
+                    $q->where('paying_method', 'Cash');
+                })->orderBy('id', 'desc')->get();
 
             $lims_gift_card_list = GiftCard::where("is_active", true)->get();
             $lims_pos_setting_data = PosSetting::latest()->first();
@@ -85,7 +120,7 @@ class SaleController extends Controller
         );
         
         
-        if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+        if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
             $totalData = Sale::where('user_id', Auth::id())->count();
         else
             $totalData = Sale::count();
@@ -99,14 +134,14 @@ class SaleController extends Controller
         $order = 'sales.'.$columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
         if(empty($request->input('search.value'))){
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
-                $sales = Sale::with('biller', 'customer', 'warehouse', 'user')->offset($start)
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
+                $sales = Sale::with('biller', 'customer', 'warehouse', 'user', 'payment')->offset($start)
                             ->where('user_id', Auth::id())
                             ->limit($limit)
                             ->orderBy($order, $dir)
                             ->get();
             else
-                $sales = Sale::with('biller', 'customer', 'warehouse', 'user')->offset($start)
+                $sales = Sale::with('biller', 'customer', 'warehouse', 'user', 'payment')->offset($start)
                             ->limit($limit)
                             ->orderBy($order, $dir)
                             ->get();
@@ -114,9 +149,9 @@ class SaleController extends Controller
         else
         {
             $search = $request->input('search.value');
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own') {
                 $sales =  Sale::select('sales.*')
-                            ->with('biller', 'customer', 'warehouse', 'user')
+                            ->with('biller', 'customer', 'warehouse', 'user', 'payment')
                             ->join('customers', 'sales.customer_id', '=', 'customers.id')
                             ->whereDate('sales.created_at', '=' , date('Y-m-d', strtotime(str_replace('/', '-', $search))))
                             ->where('sales.user_id', Auth::id())
@@ -145,10 +180,9 @@ class SaleController extends Controller
                                 ['sales.user_id', Auth::id()]
                             ])
                             ->count();
-            }
-            else {
+            }else {
                 $sales =  Sale::select('sales.*')
-                            ->with('biller', 'customer', 'warehouse', 'user')
+                            ->with('biller', 'customer', 'warehouse', 'user', 'payment')
                             ->join('customers', 'sales.customer_id', '=', 'customers.id')
                             ->whereDate('sales.created_at', '=' , date('Y-m-d', strtotime(str_replace('/', '-', $search))))
                             ->where('sales.user_id', Auth::id())
@@ -181,6 +215,9 @@ class SaleController extends Controller
                 $nestedData['warehouse'] = $sale->warehouse->name;
                 $nestedData['cashier'] = $sale->user->name;
 
+                $payment_method = Payment::where('sale_id', $sale->id)->first();
+                $payment_method = optional($payment_method)->paying_method;
+
                 if($sale->sale_status == 1){
                     $nestedData['sale_status'] = '<div class="badge badge-success">'.trans('file.Completed').'</div>';
                     $sale_status = trans('file.Completed');
@@ -201,7 +238,7 @@ class SaleController extends Controller
                 elseif($sale->payment_status == 3)
                     $nestedData['payment_status'] = '<div class="badge badge-warning">'.trans('file.Partial').'</div>';
                 else
-                    $nestedData['payment_status'] = '<div class="badge badge-success">'.trans('file.Paid').'</div>';
+                    $nestedData['payment_status'] = '<div class="badge badge-success">'.trans('file.Paid'). " - " . $payment_method ?? "" . '</div>';
 
                 $nestedData['grand_total'] = number_format($sale->grand_total, 2);
                 $nestedData['paid_amount'] = number_format($sale->paid_amount, 2);
@@ -437,10 +474,14 @@ class SaleController extends Controller
             $product_sale['total'] = $mail_data['total'][$i] = $total[$i];
             Product_Sale::create($product_sale);
         }
-        if($data['sale_status'] == 3)
+        if($data['sale_status'] == 3) {
             $message = 'Sale successfully added to draft';
-        else
+        }else {
+            //increase account balance
+            $branch_account = Account::where('warehouse_id', Auth::user()->warehouse_id)->first();
+            $branch_account->increment('total_balance', $data['paid_amount']);
             $message = ' Sale created successfully';
+        }
         if($mail_data['email'] && $data['sale_status'] == 1) {
             try {
                 Mail::send( 'mail.sale_details', $mail_data, function( $message ) use ($mail_data)
@@ -743,7 +784,6 @@ class SaleController extends Controller
         //product without variant
         foreach ($lims_product_warehouse_data as $product_warehouse) 
         {   
-            dd($lims_product_data);
             $product_qty[] = $product_warehouse->qty;
             $lims_product_data = Product::find($product_warehouse->product_id);
             $product_code[] =  $lims_product_data->code;
@@ -815,12 +855,15 @@ class SaleController extends Controller
                 $lims_warehouse_list = Warehouse::where('is_active', true)->get();
                 $lims_biller_list = Biller::where('is_active', true)->get();
                 $lims_tax_list = Tax::where('is_active', true)->get();
-                $lims_product_list = Product::select('id', 'name', 'code', 'image')->ActiveFeatured()->whereNull('is_variant')->get();
+                $lims_coupon_list = Coupon::where('is_active', true)->get();
+                $lims_product_list = Product::select('id', 'name', 'code', 'image', 'wp_img')->ActiveFeatured()->where('is_variant', 0)->orWhereNull('is_variant')->get();
                 foreach ($lims_product_list as $key => $product) {
-                    $images = explode(",", $product->image);
-                    $product->base_image = $images[0];
+                    $product_image = explode(",", $product->image);
+                    $product_image = htmlspecialchars($product_image[0]);
+                    $product_image = $product->wp_img ? $product->wp_img : url('images/product', $product_image);
+                    $product->base_image = $product_image;
                 }
-                $lims_product_list_with_variant = Product::select('id', 'name', 'code', 'image')->ActiveFeatured()->whereNotNull('is_variant')->get();
+                $lims_product_list_with_variant = Product::select('id', 'name', 'code', 'wp_img')->ActiveFeatured()->where('is_variant', 1)->get();
 
                 foreach ($lims_product_list_with_variant as $product) {
                     $images = explode(",", $product->image);
@@ -831,6 +874,7 @@ class SaleController extends Controller
                     foreach ($lims_product_variant_data as $key => $variant) {
                         $product->name = $main_name.' ['.$variant->name.']';
                         $product->code = $variant->pivot['item_code'];
+                        $product->image = $variant->pviot['image'];
                         $lims_product_list[] = clone($product);
                     }
                 }
@@ -840,7 +884,7 @@ class SaleController extends Controller
                 $lims_brand_list = Brand::where('is_active',true)->get();
                 $lims_category_list = Category::where('is_active',true)->get();
                 
-                if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
+                if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own') {
                     $recent_sale = Sale::where([
                         ['sale_status', 1],
                         ['user_id', Auth::id()]
@@ -860,7 +904,7 @@ class SaleController extends Controller
                 $cashRegister = CashRegister::where('user_id', Auth::user()->id)
                                 ->where('status', 'open')
                                 ->first();
-                return view('sale.pos', compact('all_permission', 'lims_customer_list', 'lims_customer_group_all', 'lims_warehouse_list', 'lims_product_list', 'product_number', 'lims_tax_list', 'lims_biller_list', 'lims_pos_setting_data', 'lims_brand_list', 'lims_category_list', 'recent_sale', 'recent_draft', 'lims_coupon_list', 'flag', 'cashRegister'));
+                return view('sale.pos', compact('all_permission', 'lims_customer_list', 'lims_customer_group_all', 'lims_warehouse_list', 'lims_product_list', 'product_number', 'lims_tax_list', 'lims_biller_list', 'lims_pos_setting_data', 'lims_brand_list', 'lims_category_list', 'recent_sale', 'recent_draft', 'lims_coupon_list', 'flag', 'cashRegister', 'lims_coupon_list'));
             }else{
                 $register = CashRegister::where('user_id', Auth::user()->id)
                     ->latest()->first();
@@ -906,7 +950,7 @@ class SaleController extends Controller
                                     ['categories.parent_id', $category_id],
                                     ['products.is_active', true],
                                     ['brand_id', $brand_id]
-                                ])->select('products.name', 'products.code', 'products.image')->get();
+                                ])->select('products.name', 'products.code', 'products.image', 'products.wp_img')->get();
         }
         elseif(($category_id != 0) && ($brand_id == 0)){
             $lims_product_list = DB::table('products')
@@ -917,20 +961,21 @@ class SaleController extends Controller
                                 ])->orWhere([
                                     ['categories.parent_id', $category_id],
                                     ['products.is_active', true]
-                                ])->select('products.id', 'products.name', 'products.code', 'products.image', 'products.is_variant')->get();
+                                ])->select('products.id', 'products.name', 'products.code', 'products.image', 'products.is_variant', 'products.wp_img')->get();
         }
         elseif(($category_id == 0) && ($brand_id != 0)){
             $lims_product_list = Product::where([
                                 ['brand_id', $brand_id],
                                 ['is_active', true]
                             ])
-                            ->select('products.id', 'products.name', 'products.code', 'products.image', 'products.is_variant')
+                            ->select('products.id', 'products.name', 'products.code', 'products.image', 'products.is_variant', 'products.wp_img')
                             ->get();
         }
         else
             $lims_product_list = Product::where('is_active', true)->get();
 
         $index = 0;
+        
         foreach ($lims_product_list as $product) {
             if($product->is_variant) {
                 $lims_product_data = Product::select('id')->find($product->id);
@@ -938,7 +983,7 @@ class SaleController extends Controller
                 foreach ($lims_product_variant_data as $key => $variant) {
                     $data['name'][$index] = $product->name.' ['.$variant->name.']';
                     $data['code'][$index] = $variant->pivot['item_code'];
-                    $images = explode(",", $product->image);
+                    $images = explode(",", $variant->pivot['image']);
                     $data['image'][$index] = $images[0];
                     $index++;
                 }
@@ -946,8 +991,10 @@ class SaleController extends Controller
             else {
                 $data['name'][$index] = $product->name;
                 $data['code'][$index] = $product->code;
-                $images = explode(",", $product->image);
-                $data['image'][$index] = $images[0];
+                $product_image = explode(",", $product->image);
+                $product_image = htmlspecialchars($product_image[0]);
+                $product_image = $product->wp_img ? $product->wp_img : url('images/product', $product_image);
+                $data['image'][$index] = $product_image;
                 $index++;
             }
         }

@@ -46,11 +46,6 @@
                                 <li>
                                     <button type="button" class="btn btn-link view"><i class="fa fa-eye"></i> {{trans('file.View')}}</button>
                                 </li>
-                                @if(in_array("returns-edit", $all_permission))
-                                <li>
-                                    <a href="{{ route('return-sale.edit', ['id' => $return->id]) }}" class="btn btn-link"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</a>
-                                </li>
-                                @endif
                                 <li class="divider"></li>
                                 @if(in_array("returns-delete", $all_permission))
                                 {{ Form::open(['route' => ['return-sale.destroy', $return->id], 'method' => 'DELETE'] ) }}

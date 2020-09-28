@@ -185,6 +185,7 @@ class CashRegisterController extends Controller
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='Cheque', amount, 0), 0)) as total_cheque_refund"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='Credit Card', amount, 0), 0)) as total_card_refund"),
             DB::raw("SUM(IF(transaction_type='refund', IF(pay_method='Deposit', amount, 0), 0)) as total_bank_transfer_refund"),
+            DB::raw("SUM(IF(transaction_type='expense', IF(pay_method='Cash', amount, 0), 0)) as total_expense"),
             DB::raw("SUM(IF(pay_method='Cheque', 1, 0)) as total_cheques"),
             DB::raw("SUM(IF(pay_method='Credit Card', 1, 0)) as total_card_slips"),
             //DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as user_name"),
@@ -245,13 +246,13 @@ class CashRegisterController extends Controller
     {
         try {
             $register_details =  $this->getRegisterTransactions();
-            $close_status_amount = $register_details->total_sale + $register_details->open_amount - $request->register_close_amount;
+            $close_status_amount = $register_details->total_cash + $register_details->open_amount - $register_details->total_cash_refund - $register_details->total_expense - $request->register_close_amount;
 
-            if($register_details->total_sale < $request->register_close_amount) {
+            if(($register_details->open_amount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_expense) < $request->register_close_amount) {
                 $close_status = 'positive';
-            }elseif($register_details->total_sale > $request->register_close_amount) {
+            }elseif(($register_details->open_amount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_expense) > $request->register_close_amount) {
                 $close_status = 'negative';
-            }elseif($register_details->total_sale == $request->register_close_amount) {
+            }elseif(($register_details->open_amount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_expense) == $request->register_close_amount) {
                 $close_status = 'equal';
             }else {
                $close_status = 'equal'; 
@@ -262,8 +263,8 @@ class CashRegisterController extends Controller
                 case 'save-cash-on-hand': 
                     $cashRegister->update([
                         'register_close_amount' => $request->register_close_amount,
-                        'total_sales_amount' => $register_details->total_sale,
-                        'close_status_amount' => $close_status_amount,
+                        'total_sales_amount' => $register_details->total_sale, //visa and cash
+                        'close_status_amount' => abs($close_status_amount),
                         'close_status' => $close_status
                     ]);
 
@@ -276,7 +277,7 @@ class CashRegisterController extends Controller
                         'total_card_slips' => $request->total_card_slips,
                         'total_cheques' => $request->total_cheques,
                         'closing_note' => $request->closing_note,
-                        'next_day_amount' => $cashRegister->register_close_amount - $request->closing_amount,
+                        'next_day_amount' => abs($cashRegister->register_close_amount - $request->closing_amount),
                         'closing_amount' => $request->closing_amount,
                         'closed_at' => Carbon::now()->toDateTimeString(),
                         'status' => 'close'

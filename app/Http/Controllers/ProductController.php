@@ -216,14 +216,14 @@ class ProductController extends Controller
                     return $query->where('is_active', 1);
                 }),
             ],
-            'name' => [
-                'max:255',
-                    Rule::unique('products')->where(function ($query) {
-                    return $query->where('is_active', 1);
-                }),
-            ]
+            // 'name' => [
+            //     'max:255',
+            //         Rule::unique('products')->where(function ($query) {
+            //         return $query->where('is_active', 1);
+            //     }),
+            // ]
         ]);
-        $data = $request->except('image', 'file');
+        $data = $request->all();
         if($data['type'] == 'combo'){
             $data['product_list'] = implode(",", $data['product_id']);
             $data['qty_list'] = implode(",", $data['product_qty']);
@@ -240,19 +240,28 @@ class ProductController extends Controller
         if($data['last_date'])
             $data['last_date'] = date('Y-m-d', strtotime($data['last_date']));
         $data['is_active'] = true;
-        $images = $request->image;
-        $image_names = [];
-        if($images) {            
-            foreach ($images as $key => $image) {
-                $imageName = $image->getClientOriginalName();
-                $image->move('public/images/product', $imageName);
-                $image_names[] = $imageName;
-            }
-            $data['image'] = implode(",", $image_names);
-        }
-        else {
+        //$images = $request->image;
+        if (request()->hasFile('image')) {
+            $image = request()->file('image');
+            $imageName = $image->getClientOriginalName();
+            $image->move('images/product', $imageName);
+            $data['image'] = $imageName;
+
+        }else{
             $data['image'] = 'zummXD2dvAtI.png';
         }
+        // $image_names = [];
+        // if($images) {            
+        //     foreach ($images as $key => $image) {
+        //         $imageName = $image->getClientOriginalName();
+        //         $image->move('images/product', $imageName);
+        //         $image_names[] = $imageName;
+        //     }
+        //     $data['image'] = implode(",", $image_names);
+        // }
+        // else {
+        //     $data['image'] = 'zummXD2dvAtI.png';
+        // }
         $file = $request->file;
         if ($file) {
             $ext = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
@@ -273,6 +282,15 @@ class ProductController extends Controller
                 $lims_product_variant_data->variant_id = $lims_variant_data->id;
                 $lims_product_variant_data->position = $key + 1;
                 $lims_product_variant_data->item_code = $data['item_code'][$key];
+                if ($data['variant_image'][$key]) {
+                    $image = $data['variant_image'][$key];
+                    $imageName = $image->getClientOriginalName();
+                    $image->move('images/product', $imageName);
+                    $lims_product_variant_data->image = url('images/product/' . $imageName);
+
+                }else{
+                    $lims_product_variant_data->image = url('images/product/zummXD2dvAtI.png');
+                }
                 $lims_product_variant_data->additional_price = $data['additional_price'][$key];
                 $lims_product_variant_data->qty = 0;
                 $lims_product_variant_data->save();
@@ -292,7 +310,6 @@ class ProductController extends Controller
             $lims_tax_list = Tax::where('is_active', true)->get();
             $lims_product_data = Product::where('id', $id)->first();
             $lims_product_variant_data = $lims_product_data->variant()->orderBy('position')->get();
-            //return dd($lims_product_variant_data);
 
             return view('product.edit',compact('lims_product_list', 'lims_brand_list', 'lims_category_list', 'lims_unit_list', 'lims_tax_list', 'lims_product_data', 'lims_product_variant_data'));
         }
@@ -307,12 +324,12 @@ class ProductController extends Controller
         }
         else {
             $this->validate($request, [
-                'name' => [
-                    'max:255',
-                    Rule::unique('products')->ignore($request->input('id'))->where(function ($query) {
-                        return $query->where('is_active', 1);
-                    }),
-                ],
+                // 'name' => [
+                //     'max:255',
+                //     Rule::unique('products')->ignore($request->input('id'))->where(function ($query) {
+                //         return $query->where('is_active', 1);
+                //     }),
+                // ],
 
                 'code' => [
                     'max:255',
@@ -321,7 +338,7 @@ class ProductController extends Controller
                     }),
                 ]
             ]);
-            $data = $request->except('image', 'file');
+            $data = $request->all();
             $lims_product_data = Product::findOrFail($request->input('id'));
             $data = $request->except('image', 'file');
 
@@ -342,24 +359,35 @@ class ProductController extends Controller
                 $data['starting_date'] = date('Y-m-d', strtotime($data['starting_date']));
             if($data['last_date'])
                 $data['last_date'] = date('Y-m-d', strtotime($data['last_date']));
-            $images = $request->image;
-            $image_names = [];
-            if($images) {            
-                foreach ($images as $key => $image) {
-                    $imageName = $image->getClientOriginalName();
-                    $image->move('public/images/product', $imageName);
-                    $image_names[] = $imageName;
-                }
-                if($lims_product_data->image != 'zummXD2dvAtI.png') {
-                    $data['image'] = $lims_product_data->image.','.implode(",", $image_names);
-                }
-                else{
-                    $data['image'] = implode(",", $image_names);
-                }
-            }
-            else {
+            //$images = $request->image;
+
+            if (request()->hasFile('image')) {
+                $image = request()->file('image');
+                $imageName = $image->getClientOriginalName();
+                $image->move('images/product', $imageName);
+                $data['image'] = $imageName;
+ 
+            }else{
                 $data['image'] = $lims_product_data->image;
             }
+
+            //$image_names = [];
+            // if($images) {            
+            //     foreach ($images as $key => $image) {
+            //         $imageName = $image->getClientOriginalName();
+            //         $image->move('images/product', $imageName);
+            //         $image_names[] = $imageName;
+            //     }
+            //     if($lims_product_data->image != 'zummXD2dvAtI.png') {
+            //         $data['image'] = $lims_product_data->image.','.implode(",", $image_names);
+            //     }
+            //     else{
+            //         $data['image'] = implode(",", $image_names);
+            //     }
+            // }
+            // else {
+            //     $data['image'] = $lims_product_data->image;
+            // }
 
             $file = $request->file;
             if ($file) {
@@ -385,6 +413,15 @@ class ProductController extends Controller
                         $lims_product_variant_data->product_id = $lims_product_data->id;
                         $lims_product_variant_data->variant_id = $lims_variant_data->id;
                         $lims_product_variant_data->position = $key + 1;
+                        if ($data['variant_image'][$key]) {
+                            $image = $data['variant_image'][$key];
+                            $imageName = $image->getClientOriginalName();
+                            $image->move('images/product', $imageName);
+                            $lims_product_variant_data->image = url('images/product/' . $imageName);
+
+                        }else{
+                            $lims_product_variant_data->image = url('images/product/zummXD2dvAtI.png');
+                        }
                         $lims_product_variant_data->qty = $lims_variant_data->qty ?? 0;
                         $lims_product_variant_data->item_code = $data['item_code'][$key];
                         $lims_product_variant_data->additional_price = $data['additional_price'][$key];
@@ -473,8 +510,27 @@ class ProductController extends Controller
 
     public function printBarcode()
     {
-        $lims_product_list = Product::where('is_active', true)->get();
-        return view('product.print_barcode', compact('lims_product_list'));
+        $lims_product_list_without_variant = $this->productWithoutVariant();
+
+        $lims_product_list_with_variant = $this->productWithVariant();
+
+        return view('product.print_barcode', compact('lims_product_list_without_variant', 'lims_product_list_with_variant'));
+    }
+
+    public function productWithoutVariant()
+    {
+        return Product::ActiveStandard()->select('id', 'name', 'code')
+                ->where('is_variant', 0)
+                ->orWhereNull('is_variant')->get();
+    }
+
+    public function productWithVariant()
+    {
+        return Product::join('product_variants', 'products.id', 'product_variants.product_id')
+                ->ActiveStandard()
+                ->whereNotNull('is_variant')
+                ->select('products.id', 'products.name', 'product_variants.item_code')
+                ->orderBy('position')->get();
     }
 
     public function limsProductSearch(Request $request)
@@ -483,12 +539,24 @@ class ProductController extends Controller
         $product_code = explode(" ", $request['data']);
 
         $lims_product_data = Product::where('code', $product_code[0])->first();
-        $product[] = $lims_product_data->name;
-        $product[] = $lims_product_data->code;
-        $product[] = $lims_product_data->price;
+        $lims_vproduct_data = ProductVariant::where('item_code', $product_code[0])->first();
 
-        $product[] = DNS1D::getBarcodePNG($lims_product_data->code, $lims_product_data->barcode_symbology);
-        $product[] = $lims_product_data->promotion_price;
+        if($lims_product_data) {
+            $product[] = $lims_product_data->name;
+            $product[] = $lims_product_data->code;
+            $product[] = $lims_product_data->price;
+
+            $product[] = DNS1D::getBarcodePNG($lims_product_data->code, $lims_product_data->barcode_symbology);
+            $product[] = $lims_product_data->promotion_price;  
+        }else {
+            $product[] = $lims_vproduct_data->product->name;
+            $product[] = $lims_vproduct_data->item_code;
+            $product[] = $lims_vproduct_data->product->price;
+
+            $product[] = DNS1D::getBarcodePNG($lims_vproduct_data->item_code, $lims_vproduct_data->product->barcode_symbology);
+            $product[] = $lims_vproduct_data->product->promotion_price; 
+        }
+        
         return $product;
     }
 
@@ -661,9 +729,9 @@ class ProductController extends Controller
                     $product->name = $data['title'];
                     $product->code = $data['sku'];
                     $product->type = 'standard';
-                    $product->is_variant = $data['producttype'] == 'variable' ? 1 : '';
+                    $product->is_variant = $data['producttype'] == 'variable' ? 1 : 0;
                     $product->barcode_symbology = 'C128';
-                    $product->brand_id = null;
+                    $product->brand_id = 1;
                     $product->category_id = $lims_category_data->id;
                     $product->unit_id = 1;
                     $product->purchase_unit_id = 1;
@@ -711,12 +779,12 @@ class ProductController extends Controller
             }
             $data = array_combine($escapedHeader, $columns);
 
-            if($data['parentproductid'] != 0 && $data['producttype'] == 'variable') {
+            if($data['parentproductid'] != 0) {
                 
                 $lims_product_data = Product::where('wp_ref', $data['parentproductid'])->first();
 
                 if($lims_product_data) {
-
+                    $wp_img = explode('|', $data['wpimg']);
                     $lims_variant_data = Variant::firstOrCreate(['name' => $data['variantcode']]);
                     $lims_variant_data->name = sprintf("%02d", $data['variantcode']);
                     $lims_variant_data->save();
@@ -725,9 +793,9 @@ class ProductController extends Controller
                     $lims_product_variant_data->variant_id = $lims_variant_data->id;
                     $lims_product_variant_data->position = $key + 1;
                     $lims_product_variant_data->item_code = $data['sku'];
-                    $lims_product_variant_data->additional_price = $data['price'];
+                    $lims_product_variant_data->additional_price = 0;
                     $lims_product_variant_data->qty = 0;
-                    $lims_product_variant_data->image = $data['wpimg'];
+                    $lims_product_variant_data->image = $wp_img[0];
                     $lims_product_variant_data->save();
                 }
             }

@@ -8,7 +8,7 @@
             <label class="d-tc mt-2"><strong>{{trans('file.Choose Your Date')}}</strong> &nbsp;</label>
             <div class="d-tc">
                 <div class="input-group">
-                    <input type="text" class="daterangepicker-field form-control" value="{{$start_date}} To {{$end_date}}" required />
+                    <input type="text" class="daterangepicker-field form-control" value="" required />
                     <input type="hidden" name="start_date" value="{{$start_date}}" />
                     <input type="hidden" name="end_date" value="{{$end_date}}" />
                     <div class="input-group-append">
@@ -216,14 +216,31 @@
     $("ul#report #profit-loss-report-menu").addClass("active");
 
 	$(".daterangepicker-field").daterangepicker({
-	  callback: function(startDate, endDate, period){
-	    var start_date = startDate.format('YYYY-MM-DD');
-	    var end_date = endDate.format('YYYY-MM-DD');
-	    var title = start_date + ' To ' + end_date;
-	    $(this).val(title);
-	    $('input[name="start_date"]').val(start_date);
-	    $('input[name="end_date"]').val(end_date);
-	  }
+		autoUpdateInput: false,
+        ranges: {
+            'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+            'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'Today': [moment(), moment()],
+        },
+		  callback: function(startDate, endDate, period){
+		    var start_date = startDate.format('YYYY-MM-DD');
+		    var end_date = endDate.format('YYYY-MM-DD');
+		    var title = start_date + ' To ' + end_date;
+		    $(this).val(title);
+		    $('input[name="start_date"]').val(start_date);
+		    $('input[name="end_date"]').val(end_date);
+		  }
+	});
+
+	$('.daterangepicker-field').on('apply.daterangepicker', function(ev, picker) {
+	      $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+	});
+
+	$('.daterangepicker-field').on('cancel.daterangepicker', function(ev, picker) {
+	      $(this).val('');
 	});
 </script>
 @endsection

@@ -32,8 +32,10 @@ class PurchaseController extends Controller
     {
         $role = Role::find(Auth::user()->role_id);
         if($role->hasPermissionTo('purchases-index')){            
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $lims_purchase_list = Purchase::orderBy('id', 'desc')->where('user_id', Auth::id())->get();
+            elseif(Auth::user()->hasRole('Branch Supervisor'))
+                $lims_purchase_list = Purchase::orderBy('id', 'desc')->where('warehouse_id', Auth::user()->warehouse_id)->get(); 
             else
                 $lims_purchase_list = Purchase::orderBy('id', 'desc')->get();
             $permissions = Role::findByName($role->name)->permissions;
@@ -58,7 +60,7 @@ class PurchaseController extends Controller
             6 => 'paid_amount',
         );
         
-        if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+        if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
             $totalData = Purchase::where('user_id', Auth::id())->count();
         else
             $totalData = Purchase::count();
@@ -73,7 +75,7 @@ class PurchaseController extends Controller
         $order = $columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
         if(empty($request->input('search.value'))){
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $purchases = Purchase::with('supplier', 'warehouse')->offset($start)
                             ->where('user_id', Auth::id())
                             ->limit($limit)
@@ -89,7 +91,7 @@ class PurchaseController extends Controller
         else
         {
             $search = $request->input('search.value');
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own') {
                 $purchases =  Purchase::select('purchases.*')
                             ->with('supplier', 'warehouse')
                             ->leftJoin('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
@@ -150,6 +152,7 @@ class PurchaseController extends Controller
                 $nestedData['key'] = $key;
                 $nestedData['date'] = date(config('date_format'), strtotime($purchase->created_at->toDateString()));
                 $nestedData['reference_no'] = $purchase->reference_no;
+                $nestedData['warehouse'] = $purchase->warehouse->name;
 
                 if($purchase->supplier_id) {
                     $supplier = $purchase->supplier;
@@ -196,11 +199,12 @@ class PurchaseController extends Controller
                     $nestedData['options'] .= '<li>
                         <a href="'.route('purchases.edit', ['id' => $purchase->id]).'" class="btn btn-link"><i class="dripicons-document-edit"></i> '.trans('file.edit').'</a>
                         </li>';
+                if($purchase->payment_status == 1)
+                    $nestedData['options'] .= '<li>
+                        <button type="button" class="add-payment btn btn-link" data-id = "'.$purchase->id.'" data-toggle="modal" data-target="#add-payment"><i class="fa fa-plus"></i> '.trans('file.Add Payment').'</button>
+                    </li>';
                 $nestedData['options'] .= 
                     '<li>
-                        <button type="button" class="add-payment btn btn-link" data-id = "'.$purchase->id.'" data-toggle="modal" data-target="#add-payment"><i class="fa fa-plus"></i> '.trans('file.Add Payment').'</button>
-                    </li>
-                    <li>
                         <button type="button" class="get-payment btn btn-link" data-id = "'.$purchase->id.'"><i class="fa fa-money"></i> '.trans('file.View Payment').'</button>
                     </li>';
                 if(in_array("purchases-delete", $request['all_permission']))
@@ -217,6 +221,7 @@ class PurchaseController extends Controller
                 $nestedData['purchase'] = array( '[ "'.date(config('date_format'), strtotime($purchase->created_at->toDateString())).'"', ' "'.$purchase->reference_no.'"', ' "'.$purchase_status.'"',  ' "'.$purchase->id.'"', ' "'.$purchase->warehouse->name.'"', ' "'.$purchase->warehouse->phone.'"', ' "'.$purchase->warehouse->address.'"', ' "'.$supplier->name.'"', ' "'.$supplier->company_name.'"', ' "'.$supplier->email.'"', ' "'.$supplier->phone_number.'"', ' "'.$supplier->address.'"', ' "'.$supplier->city.'"', ' "'.$purchase->total_tax.'"', ' "'.$purchase->total_discount.'"', ' "'.$purchase->total_cost.'"', ' "'.$purchase->order_tax.'"', ' "'.$purchase->order_tax_rate.'"', ' "'.$purchase->order_discount.'"', ' "'.$purchase->shipping_cost.'"', ' "'.$purchase->grand_total.'"', ' "'.$purchase->paid_amount.'"', ' "'.$purchase->purchase_note.'"', ' "'.$user->name.'"', ' "'.$user->email.'"]'
                 );
                 $data[] = $nestedData;
+                
             }
         }
         $json_data = array(
@@ -248,7 +253,8 @@ class PurchaseController extends Controller
     public function productWithoutVariant()
     {
         return Product::ActiveStandard()->select('id', 'name', 'code')
-                ->whereNull('is_variant')->get();
+                ->where('is_variant', 0)
+                ->orWhereNull('is_variant')->get();
     }
 
     public function productWithVariant()
@@ -735,8 +741,14 @@ class PurchaseController extends Controller
     }
 
     public function addPayment(Request $request)
-    {
+    {   
         $data = $request->all();
+        $purchase_account = Account::where('warehouse_id', Auth::user()->warehouse_id)->first();
+
+        if($purchase_account->total_balance < $data['amount']) {
+            return redirect()->back()->with('not_permitted', 'Sorry, Payment Amount Bigger than Account Balance.');
+        }
+        
         $lims_purchase_data = Purchase::find($data['purchase_id']);
         $lims_purchase_data->paid_amount += $data['amount'];
         $balance = $lims_purchase_data->grand_total - $lims_purchase_data->paid_amount;
@@ -758,7 +770,6 @@ class PurchaseController extends Controller
         $lims_payment_data = new Payment();
         $lims_payment_data->user_id = Auth::id();
         $lims_payment_data->purchase_id = $lims_purchase_data->id;
-        $purchase_account = Account::where('warehouse_id', Auth::user()->warehouse_id)->first();
         $lims_payment_data->account_id = $purchase_account->id;
         $lims_payment_data->payment_reference = 'ppr-' . date("Ymd") . '-'. date("his");
         $lims_payment_data->amount = $data['amount'];
@@ -767,23 +778,16 @@ class PurchaseController extends Controller
         $lims_payment_data->payment_note = $data['payment_note'];
         $lims_payment_data->save();
 
+
         $lims_payment_data = Payment::latest()->first();
         $data['payment_id'] = $lims_payment_data->id;
 
+        //update account balances
+        $purchase_account->decrement('total_balance', $data['amount']);
+
         if($paying_method == 'Credit Card'){
-            $lims_pos_setting_data = PosSetting::latest()->first();
-            Stripe::setApiKey($lims_pos_setting_data->stripe_secret_key);
-            $token = $data['stripeToken'];
             $amount = $data['amount'];
-
-            // Charge the Customer
-            $charge = \Stripe\Charge::create([
-                'amount' => $amount * 100,
-                'currency' => 'usd',
-                'source' => $token,
-            ]);
-
-            $data['charge_id'] = $charge->id;
+            $data['charge_id'] = 1;
             PaymentWithCreditCard::create($data);
         }
         elseif ($paying_method == 'Cheque') {

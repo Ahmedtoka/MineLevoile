@@ -20,6 +20,7 @@
                     <th class="not-exported"></th>
                     <th>{{trans('file.Date')}}</th>
                     <th>{{trans('file.reference')}}</th>
+                    <th>{{trans('file.Warehouse')}}</th>
                     <th>{{trans('file.Supplier')}}</th>
                     <th>{{trans('file.Purchase Status')}}</th>
                     <th>{{trans('file.grand total')}}</th>
@@ -33,6 +34,7 @@
             <tfoot class="tfoot active">
                 <th></th>
                 <th>{{trans('file.Total')}}</th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -299,7 +301,7 @@
         $('select[name="paid_by_id"]').val(1);
         rowindex = $(this).closest('tr').index();
         var purchase_id = $(this).data('id').toString();
-        var balance = $('table.purchase-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(8)').text();
+        var balance = $('table.purchase-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(9)').text();
         balance = parseFloat(balance.replace(/,/g, ''));
         $('input[name="amount"]').val(balance);
         $('input[name="balance"]').val(balance);
@@ -467,6 +469,7 @@
             {"data": "key"},
             {"data": "date"},
             {"data": "reference_no"},
+            {"data": "warehouse"},
             {"data": "supplier"},
             {"data": "purchase_status"},
             {"data": "grand_total"},
@@ -600,14 +603,14 @@
         if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
             var rows = dt_selector.rows( '.selected' ).indexes();
 
-            $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
             $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
             $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
+            $( dt_selector.column( 8 ).footer() ).html(dt_selector.cells( rows, 8, { page: 'current' } ).data().sum().toFixed(2));
         }
         else {
-            $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
             $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
             $( dt_selector.column( 7 ).footer() ).html(dt_selector.column( 7, {page:'current'} ).data().sum().toFixed(2));
+            $( dt_selector.column( 8 ).footer() ).html(dt_selector.column( 8, {page:'current'} ).data().sum().toFixed(2));
         }
     }
 
@@ -640,7 +643,7 @@
 
             var newRow = $("<tr>");
             cols = '';
-            cols += '<td colspan=4><strong>{{trans("file.Total")}}:</strong></td>';
+            cols += '<td colspan=5><strong>{{trans("file.Total")}}:</strong></td>';
             cols += '<td>' + purchase[13] + '</td>';
             cols += '<td>' + purchase[14] + '</td>';
             cols += '<td>' + purchase[15] + '</td>';

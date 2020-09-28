@@ -115,7 +115,7 @@
                                                         $product_data = DB::table('products')->find($product_purchase->product_id);
                                                         if($product_purchase->variant_id) {
                                                             $product_variant_data = \App\ProductVariant::FindExactProduct($product_data->id, $product_purchase->variant_id)->select('item_code')->first();
-                                                            $product_data->code = $product_variant_data->item_code;
+                                                            $product_data->code = $product_variant_data->item_code ?? '-';
                                                         }
 
                                                         $tax = DB::table('taxes')->where('rate', $product_purchase->tax_rate)->first();

@@ -54,6 +54,15 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{trans('file.Paid By')}}</label>
+                                            <select name="paid_by_id" class="form-control selectpicker" required>
+                                                <option value="1">Cash</option>
+                                                <option value="3">Credit Card</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 mt-3">

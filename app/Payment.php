@@ -10,4 +10,9 @@ class Payment extends Model
 
         "purchase_id", "user_id", "sale_id", "account_id", "payment_reference", "amount", "change", "paying_method", "payment_note"
     ];
+
+    public function sale()
+    {
+        return $this->belongsTo('App\Sale');
+    }
 }

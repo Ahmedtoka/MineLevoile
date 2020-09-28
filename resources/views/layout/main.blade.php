@@ -1175,7 +1175,7 @@
         <div class="container-fluid">
           <div class="row">
             <div class="col-sm-12">
-              <p>&copy; {{$general_setting->site_title}} | {{trans('file.Developed')}} {{trans('file.By')}} <a href="https://lion-coders.com" class="external">B Creative Digital</a></p>
+              <p>&copy; {{$general_setting->site_title}} | {{trans('file.Developed')}} {{trans('file.By')}} <a href="tel:01112051631" class="external">B Creative Digital</a></p>
             </div>
           </div>
         </div>
@@ -1267,6 +1267,11 @@
       $("a#due-report-link").click(function(e){
         e.preventDefault();
         $("#due-report-form").submit();
+      });
+
+      $('form').on('submit', function() {
+          $('button[type="submit"]').unbind('click');
+          $('button[type="submit"]').remove();
       });
 
       $(".daterangepicker-field").daterangepicker({

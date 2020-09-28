@@ -55,7 +55,7 @@ class SaleController extends Controller
             if(empty($all_permission))
                 $all_permission[] = 'dummy text';
             
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $lims_sale_all = Sale::orderBy('id', 'desc')->where('user_id', Auth::id())->get();
             else
                 $lims_sale_all = Sale::orderBy('id', 'desc')->get();
@@ -80,7 +80,7 @@ class SaleController extends Controller
         );
         
         
-        if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+        if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
             $totalData = Sale::where('user_id', Auth::id())->count();
         else
             $totalData = Sale::count();
@@ -94,7 +94,7 @@ class SaleController extends Controller
         $order = 'sales.'.$columns[$request->input('order.0.column')];
         $dir = $request->input('order.0.dir');
         if(empty($request->input('search.value'))){
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $sales = Sale::with('biller', 'customer', 'warehouse', 'user')->offset($start)
                             ->where('user_id', Auth::id())
                             ->limit($limit)
@@ -109,7 +109,7 @@ class SaleController extends Controller
         else
         {
             $search = $request->input('search.value');
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own') {
                 $sales =  Sale::select('sales.*')
                             ->with('biller', 'customer', 'warehouse', 'user')
                             ->join('customers', 'sales.customer_id', '=', 'customers.id')
@@ -464,7 +464,7 @@ class SaleController extends Controller
 
             $lims_payment_data = new Payment();
             $lims_payment_data->user_id = Auth::id();
-            $lims_account_data = Account::where('is_default', true)->first();
+            $lims_account_data = Account::where('warehouse_id', Auth::user()->warehouse_id)->first();
             $lims_payment_data->account_id = $lims_account_data->id;
             $lims_payment_data->sale_id = $lims_sale_data->id;
             $data['payment_reference'] = 'spr-'.date("Ymd").'-'.date("his");
@@ -832,7 +832,7 @@ class SaleController extends Controller
             $lims_brand_list = Brand::where('is_active',true)->get();
             $lims_category_list = Category::where('is_active',true)->get();
             
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own') {
                 $recent_sale = Sale::where([
                     ['sale_status', 1],
                     ['user_id', Auth::id()]

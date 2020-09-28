@@ -84,14 +84,21 @@
     $("ul#product").addClass("show");
     $("ul#product #printBarcode-menu").addClass("active");
 	<?php $productArray = []; ?>
-	var lims_product_code = [ @foreach($lims_product_list as $product)
+	var lims_product_code = [
+    @foreach($lims_product_list_without_variant as $product)
         <?php
             $productArray[] = $product->code . ' (' . $product->name . ')';
         ?>
-         @endforeach
-            <?php
-            echo  '"'.implode('","', $productArray).'"';
-            ?> ];
+    @endforeach
+    @foreach($lims_product_list_with_variant as $product)
+        <?php
+            $productArray[] = $product->item_code . ' (' . $product->name . ')';
+        ?>
+    @endforeach
+        <?php
+        echo  '"'.implode('","', $productArray).'"';
+        ?> 
+];
 
     var lims_productcodeSearch = $('#lims_productcodeSearch');
 
@@ -163,16 +170,17 @@
 			while(i < qty[index]){
                 if(i % 2 == 0)
                     htmltext +='<tr>';
-				htmltext +='<td>';
+				htmltext +='<td style="background: url(/images/barcode-bg.jpeg); text-align:right;font-weight:700;background-position: left;background-size: contain;background-repeat: no-repeat;-webkit-print-color-adjust: exact;">';
 				if($('input[name="name"]').is(":checked"))
 					htmltext += product_name[index] + '<br>';
-				htmltext += '<img src="data:image/png;base64,'+barcode_image[index]+'" alt="barcode" /><br>';
+				htmltext += '<img src="data:image/png;base64,'+barcode_image[index]+'" alt="barcode" style="margin-top:10px;margin-bottom:10px;"/><br>';
 				if($('input[name="code"]').is(":checked"))
 					htmltext += '<strong>'+code[index]+'</strong><br>';
 				if($('input[name="promo_price"]').is(":checked"))
-					htmltext += 'price: '+promo_price[index]+'<br>';
+					htmltext += 'Price: '+promo_price[index]+'<br>';
 				else if($('input[name="price"]').is(":checked"))
-					htmltext += 'price: '+price[index];
+					htmltext += 'Price: '+price[index];
+                    htmltext += '<br>Code: '+code[index];
 				htmltext +='</td>';
                 if(i % 2 != 0)
                     htmltext +='</tr>';

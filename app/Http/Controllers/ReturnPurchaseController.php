@@ -33,7 +33,7 @@ class ReturnPurchaseController extends Controller
                 $all_permission[] = $permission->name;
             if(empty($all_permission))
                 $all_permission[] = 'dummy text';
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $lims_return_all = ReturnPurchase::with('supplier', 'warehouse', 'user')->orderBy('id', 'desc')->where('user_id', Auth::id())->get();
             else
                 $lims_return_all = ReturnPurchase::with('supplier', 'warehouse', 'user')->orderBy('id', 'desc')->get();
@@ -185,6 +185,10 @@ class ReturnPurchaseController extends Controller
         }
 
         $lims_return_data = ReturnPurchase::create($data);
+        //update account balance
+        $account = Account::where('warehouse_id', Auth::user()->warehouse_id)->first();
+        $account->decrement('total_balance', $lims_return_data->grand_total);
+
         if($data['supplier_id']){
             $lims_supplier_data = Supplier::find($data['supplier_id']);
         
@@ -256,6 +260,7 @@ class ReturnPurchaseController extends Controller
             );
         }
         $message = 'Return created successfully';
+
         if($data['supplier_id']){
             try{
                 Mail::send( 'mail.return_details', $mail_data, function( $message ) use ($mail_data)

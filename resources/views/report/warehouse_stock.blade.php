@@ -11,10 +11,20 @@
 						<h3>{{trans('file.Stock Chart')}} </h3>
 						<p>Select warehouse to view chart</p>
 						<select class="form-control mb-3" id="warehouse_id" name="warehouse_id">
+							@if(Auth::user()->hasRole('Admin'))
 							<option value="0">{{trans('file.All Warehouse')}}</option>
-							@foreach($lims_warehouse_list as $warehouse)
-							<option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
-							@endforeach
+							@endif
+							@if(Auth::user()->warehouse_id)
+                                @foreach($lims_warehouse_list as $warehouse)
+                                  @if($warehouse->id == Auth::user()->warehouse_id)
+                                  <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
+                                  @endif
+                                @endforeach       
+                              @else
+                                @foreach($lims_warehouse_list as $warehouse)
+                                  <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
+                                @endforeach
+                             @endif
 						</select>
 						{{ Form::close() }}
 					</div>

@@ -23,4 +23,9 @@ class ProductVariant extends Model
             ['item_code', $item_code],
         ]);
     }
+
+    public function product()
+    {
+        return $this->belongsTo('App\Product');
+    }
 }

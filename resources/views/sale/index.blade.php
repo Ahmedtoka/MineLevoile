@@ -21,7 +21,7 @@
                     <th>{{trans('file.reference')}}</th>
                     <th>{{trans('file.Biller')}}</th>
                     <th>{{trans('file.customer')}}</th>
-                    <th>{{trans('file.warehouse')}}</th>
+                    <th>{{trans('file.Warehouse')}}</th>
                     <th>{{trans('file.cashier')}}</th>
                     <th>{{trans('file.Sale Status')}}</th>
                     <th>{{trans('file.Payment Status')}}</th>
@@ -35,6 +35,8 @@
             <tfoot class="tfoot active">
                 <th></th>
                 <th>{{trans('file.Total')}}</th>
+                <th></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -771,7 +773,7 @@
                         $(':checkbox:checked').each(function(i){
                             if(i){
                                 var sale = $(this).closest('tr').data('sale');
-                                sale_id[i-1] = sale[13];
+                                sale_id[i-1] = sale[15];
                             }
                         });
                         if(sale_id.length && confirm("Are you sure want to delete?")) {
@@ -822,10 +824,10 @@
     }
 
     function saleDetails(sale){
-        $("#sale-details input[name='sale_id']").val(sale[13]);
+        $("#sale-details input[name='sale_id']").val(sale[15]);
 
         var htmltext = '<strong>{{trans("file.Date")}}: </strong>'+sale[0]+'<br><strong>{{trans("file.reference")}}: </strong>'+sale[1]+'<br><strong>{{trans("file.Warehouse")}}: </strong>'+sale[27]+'<br><strong>{{trans("file.Sale Status")}}: </strong>'+sale[2]+'<br><br><div class="row"><div class="col-md-6"><strong>{{trans("file.From")}}:</strong><br>'+sale[3]+'<br>'+sale[4]+'<br>'+sale[5]+'<br>'+sale[6]+'<br>'+sale[7]+'<br>'+sale[8]+'</div><div class="col-md-6"><div class="float-right"><strong>{{trans("file.To")}}:</strong><br>'+sale[9]+'<br>'+sale[10]+'<br>'+sale[11]+'<br>'+sale[12]+'</div></div></div>';
-        $.get('sales/product_sale/' + sale[13], function(data){
+        $.get('sales/product_sale/' + sale[15], function(data){
             $(".product-sale-list tbody").remove();
             var name_code = data[0];
             var qty = data[1];

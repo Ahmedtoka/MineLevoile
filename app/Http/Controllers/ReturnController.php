@@ -23,6 +23,9 @@ use Spatie\Permission\Models\Permission;
 use App\Mail\UserNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\CashRegister;
+use App\CashRegisterTransaction;
+
 
 class ReturnController extends Controller
 {
@@ -36,7 +39,7 @@ class ReturnController extends Controller
             if(empty($all_permission))
                 $all_permission[] = 'dummy text';
             
-            if(Auth::user()->role_id > 2 && config('staff_access') == 'own')
+            if(Auth::user()->hasRole('Staff') && config('staff_access') == 'own')
                 $lims_return_all = Returns::with('biller', 'customer', 'warehouse', 'user')->orderBy('id', 'desc')->orderBy('id', 'desc')->where('user_id', Auth::id())->get();
             else
                 $lims_return_all = Returns::with('biller', 'customer', 'warehouse', 'user')->orderBy('id', 'desc')->get();
@@ -201,6 +204,42 @@ class ReturnController extends Controller
         }
 
         $lims_return_data = Returns::create($data);
+        //update account balance
+        $lims_account_data->decrement('total_balance', $lims_return_data->grand_total);
+        //record in cash register transaction
+        $cash_register = CashRegister::where('user_id', Auth::id())
+            ->where('warehouse_id', Auth::user()->warehouse_id)
+            ->where('status', 'open')->first();
+        if($cash_register) {
+
+            if($data['paid_by_id'] == 1)
+                $paying_method = 'Cash';
+            elseif ($data['paid_by_id'] == 2){
+                $paying_method = 'Gift Card';
+            }
+            elseif ($data['paid_by_id'] == 3)
+                $paying_method = 'Credit Card';
+            elseif ($data['paid_by_id'] == 4)
+                $paying_method = 'Cheque';
+            elseif ($data['paid_by_id'] == 5)
+                $paying_method = 'Paypal';
+            else
+                $paying_method = 'Deposit';
+            
+            $return_payment = new CashRegisterTransaction([
+                'amount' => $lims_return_data->grand_total,
+                'pay_method' => $paying_method,
+                'type' => 'debit',
+                'transaction_type' => 'refund',
+                'sale_id' => null
+            ]);
+
+            if (!empty($return_payment)) {
+                $cash_register->cash_register_transactions()->save($return_payment);
+            }
+        }
+        
+        
         $lims_customer_data = Customer::find($data['customer_id']);
         //collecting male data
         $mail_data['email'] = $lims_customer_data->email;

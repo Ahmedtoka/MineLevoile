@@ -54,6 +54,9 @@ class CustomerController extends Controller
             ],
         ]);
         $lims_customer_data = $request->all();
+        $lims_customer_data['city'] = 'Cairo';
+        $lims_customer_data['address'] = 'Cairo';
+
         $lims_customer_data['is_active'] = true;
         $message = 'Customer created successfully';
         if($lims_customer_data['email']){
@@ -67,9 +70,9 @@ class CustomerController extends Controller
                 $message = 'Customer created successfully. Please setup your <a href="setting/mail_setting">mail setting</a> to send mail.';
             }   
         }
-        Customer::create($lims_customer_data);
+        $customer = Customer::create($lims_customer_data);
         if($lims_customer_data['pos'])
-            return redirect('pos')->with('message', $message);
+            return redirect('pos')->with(['message' => $message, 'customer' => $customer->id]);
         else
             return redirect('customer')->with('create_message', $message);
     }
@@ -98,6 +101,9 @@ class CustomerController extends Controller
         ]);
 
         $input = $request->all();
+        $input['city'] = 'Cairo';
+        $input['address'] = 'Cairo';
+
         $lims_customer_data = Customer::find($id);
         $lims_customer_data->update($input);
         return redirect('customer')->with('edit_message', 'Data updated Successfully');

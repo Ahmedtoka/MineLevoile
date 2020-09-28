@@ -29,10 +29,20 @@ class MoneyTransferController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {   
+        $fromAccount = Account::where('id', $request->from_account_id)->first();
+        $toAccount = Account::where('id', $request->to_account_id)->first();
+        if($fromAccount->total_balance < $request->amount) {
+            return redirect()->back()->with('not_permitted', 'Sorry, Transfer Amount Bigger than Account Balance.');
+        }
+
         $data = $request->all();
         $data['reference_no'] = 'mtr-' . date("Ymd") . '-'. date("his");
         MoneyTransfer::create($data);
+        //update account balances
+        $fromAccount->decrement('total_balance', $request->amount);
+        $toAccount->increment('total_balance', $request->amount);
+        
         return redirect()->back()->with('message', 'Money transfered successfully');
     }
 

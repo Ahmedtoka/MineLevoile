@@ -785,7 +785,7 @@
                                                 <?php $deposit = [] ?>
                                                 @foreach($lims_customer_list as $customer)
                                                     @php $deposit[$customer->id] = $customer->deposit - $customer->expense; @endphp
-                                                    <option value="{{$customer->id}}">{{$customer->name . ' (' . $customer->phone_number . ')'}}</option>
+                                                    <option value="{{$customer->id}}">{{$customer->phone_number . ' (' . $customer->name . ')'}}</option>
                                                 @endforeach
                                                 </select>
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addCustomer"><i class="dripicons-plus"></i></button>
@@ -909,7 +909,7 @@
                             <button style="background-color: #ffc107;" type="button" class="btn btn-custom" data-toggle="modal" data-target="#recentTransaction"><i class="dripicons-clock"></i> Recent transaction</button>
                         </div>
                         <div class="column-5">
-                            <a href="{{route('register.close', $cashRegister->id)}}" style="background-color: #d63031;" type="button" class="btn btn-custom"><i class="dripicons-clock"></i> {{trans('file.close_register')}}</a>
+                            <a href="{{route('register.close', $cashRegister->id)}}" style="background-color: #d63031;" type="button" class="btn btn-custom"><i class="dripicons-clock"></i> {{trans('file.Close Day')}}</a>
                         </div>
                     </div>
                 </div>
@@ -1017,7 +1017,11 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <input type="text" id="coupon-code" class="form-control" placeholder="Type Coupon Code...">
+                                <select class="form-control selectpicker" data-live-search="true" data-live-search-style="begins" title="Select Coupon..." id="coupon-code">
+                                    @foreach($lims_coupon_list as $coupon)
+                                    <option value="{{$coupon->code}}">{{$coupon->code}}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <button type="button" class="btn btn-primary coupon-check" data-dismiss="modal">{{trans('file.submit')}}</button>
                         </div>
@@ -1215,12 +1219,12 @@
                             <tbody>
                             @for ($i=0; $i < ceil($product_number/5); $i++)
                                 <tr>
-                                    <td class="product-img sound-btn" title="{{$lims_product_list[0+$i*5]->name}}" data-product ="{{$lims_product_list[0+$i*5]->code . ' (' . $lims_product_list[0+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[0+$i*5]->base_image)}}" width="100%" />
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[0+$i*5]->name}}" data-product ="{{$lims_product_list[0+$i*5]->code . ' (' . $lims_product_list[0+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
                                         <p>{{$lims_product_list[0+$i*5]->name}}</p>
                                         <span>{{$lims_product_list[0+$i*5]->code}}</span>
                                     </td>
                                     @if(!empty($lims_product_list[1+$i*5]))
-                                    <td class="product-img sound-btn" title="{{$lims_product_list[1+$i*5]->name}}" data-product ="{{$lims_product_list[1+$i*5]->code . ' (' . $lims_product_list[1+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[1+$i*5]->base_image)}}" width="100%" />
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[1+$i*5]->name}}" data-product ="{{$lims_product_list[1+$i*5]->code . ' (' . $lims_product_list[1+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
                                         <p>{{$lims_product_list[1+$i*5]->name}}</p>
                                         <span>{{$lims_product_list[1+$i*5]->code}}</span>
                                     </td>
@@ -1228,7 +1232,7 @@
                                     <td style="border:none;"></td>
                                     @endif
                                     @if(!empty($lims_product_list[2+$i*5]))
-                                    <td class="product-img sound-btn" title="{{$lims_product_list[2+$i*5]->name}}" data-product ="{{$lims_product_list[2+$i*5]->code . ' (' . $lims_product_list[2+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[2+$i*5]->base_image)}}" width="100%" />
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[2+$i*5]->name}}" data-product ="{{$lims_product_list[2+$i*5]->code . ' (' . $lims_product_list[2+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
                                         <p>{{$lims_product_list[2+$i*5]->name}}</p>
                                         <span>{{$lims_product_list[2+$i*5]->code}}</span>
                                     </td>
@@ -1236,7 +1240,7 @@
                                     <td style="border:none;"></td>
                                     @endif
                                     @if(!empty($lims_product_list[3+$i*5]))
-                                    <td class="product-img sound-btn" title="{{$lims_product_list[3+$i*5]->name}}" data-product ="{{$lims_product_list[3+$i*5]->code . ' (' . $lims_product_list[3+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[3+$i*5]->base_image)}}" width="100%" />
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[3+$i*5]->name}}" data-product ="{{$lims_product_list[3+$i*5]->code . ' (' . $lims_product_list[3+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
                                         <p>{{$lims_product_list[3+$i*5]->name}}</p>
                                         <span>{{$lims_product_list[3+$i*5]->code}}</span>
                                     </td>
@@ -1339,12 +1343,12 @@
                             <input type="text" name="phone_number" required class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>{{trans('file.Address')}} *</label>
-                            <input type="text" name="address" required class="form-control">
+                            <label>{{trans('file.Address')}}</label>
+                            <input type="text" name="address" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>{{trans('file.City')}} *</label>
-                            <input type="text" name="city" required class="form-control">
+                            <label>{{trans('file.City')}}</label>
+                            <input type="text" name="city" class="form-control">
                         </div>
                         <div class="form-group">
                         <input type="hidden" name="pos" value="1">      
@@ -1694,6 +1698,7 @@ $('.category-img').on('click', function(){
 
     $(".table-container").children().remove();
     $.get('sales/getproduct/' + category_id + '/' + brand_id, function(data) {
+        console.log(data);
         populateProduct(data);
     });
 });
@@ -1729,9 +1734,9 @@ function populateProduct(data) {
         $.each(data['name'], function(index) {
             var product_info = data['code'][index]+' (' + data['name'][index] + ')';
             if(index % 5 == 0 && index != 0)
-                tableData += '</tr><tr><td class="product-img sound-btn" title="'+data['name'][index]+'" data-product = "'+product_info+'"><img  src="images/product/'+data['image'][index]+'" width="100%" /><p>'+data['name'][index]+'</p><span>'+data['code'][index]+'</span></td>';
+                tableData += '</tr><tr><td class="product-img sound-btn" title="'+data['name'][index]+'" data-product = "'+product_info+'"><img  src="'+data['image'][index]+'" width="100%" /><p>'+data['name'][index]+'</p><span>'+data['code'][index]+'</span></td>';
             else
-                tableData += '<td class="product-img sound-btn" title="'+data['name'][index]+'" data-product = "'+product_info+'"><img  src="images/product/'+data['image'][index]+'" width="100%" /><p>'+data['name'][index]+'</p><span>'+data['code'][index]+'</span></td>';
+                tableData += '<td class="product-img sound-btn" title="'+data['name'][index]+'" data-product = "'+product_info+'"><img  src="'+data['image'][index]+'" width="100%" /><p>'+data['name'][index]+'</p><span>'+data['code'][index]+'</span></td>';
         });
 
         if(data['name'].length % 5){
@@ -2573,6 +2578,11 @@ $('#product-table').DataTable( {
     },
     dom: 'tp'
 });
+
+@if(session()->has('customer'))
+    $('#customer_id').selectpicker('val', '{!! session()->get("customer") !!}');
+@endif
+
 </script>
 @endsection
 @section('scripts')
