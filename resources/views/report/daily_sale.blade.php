@@ -69,9 +69,9 @@
 						    				if($order_tax[$i]){
 						    					echo '<strong>'.trans("file.Order Tax").'</strong><br><span>'.$order_tax[$i].'</span><br><br>';
 						    				}
-						    				if($shipping_cost[$i]){
-						    					echo '<strong>'.trans("file.Shipping Cost").'</strong><br><span>'.$shipping_cost[$i].'</span><br><br>';
-						    				}
+						    				// if($shipping_cost[$i]){
+						    				// 	echo '<strong>'.trans("file.Shipping Cost").'</strong><br><span>'.$shipping_cost[$i].'</span><br><br>';
+						    				// }
 						    				if($grand_total[$i]){
 						    					echo '<strong>'.trans("file.grand total").'</strong><br><span>'.$grand_total[$i].'</span><br><br>';
 						    				}
@@ -96,9 +96,9 @@
 						    				if($order_tax[$i]){
 						    					echo '<strong>'.trans("file.Order Tax").'</strong><br><span>'.$order_tax[$i].'</span><br><br>';
 						    				}
-						    				if($shipping_cost[$i]){
-						    					echo '<strong>'.trans("file.Shipping Cost").'</strong><br><span>'.$shipping_cost[$i].'</span><br><br>';
-						    				}
+						    				// if($shipping_cost[$i]){
+						    				// 	echo '<strong>'.trans("file.Shipping Cost").'</strong><br><span>'.$shipping_cost[$i].'</span><br><br>';
+						    				// }
 						    				if($grand_total[$i]){
 						    					echo '<strong>'.trans("file.grand total").'</strong><br><span>'.$grand_total[$i].'</span><br><br>';
 						    				}

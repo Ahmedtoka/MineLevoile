@@ -594,6 +594,10 @@ class ReportController extends Controller
         $end_date = $data['end_date'];
         $warehouse_id = $data['warehouse_id'];
         $lims_product_all = Product::select('id', 'name', 'qty', 'is_variant')->where('is_active', true)->get();
+        $product_id = [];
+        $variant_id = [];
+        $product_name   = [];
+        $product_qty   = [];
         foreach ($lims_product_all as $product) {
             $lims_product_purchase_data = null;
             $variant_id_all = [];
@@ -664,9 +668,8 @@ class ReportController extends Controller
 
                     }
                         $lims_product_sale_data = Product_Sale::where('product_id', $product->id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->first();
-                }
-                else {
-                    if($product->is_variant)
+                }else {
+                    if($product->is_variant) {
                         $variant_id_all = DB::table('sales')
                             ->join('product_sales', 'sales.id', '=', 'product_sales.sale_id')
                             ->distinct('variant_id')
@@ -676,7 +679,7 @@ class ReportController extends Controller
                             ])->whereDate('sales.created_at','>=', $start_date)
                               ->whereDate('sales.created_at','<=', $end_date)
                               ->pluck('variant_id');
-                    else
+
                         $lims_product_sale_data = DB::table('sales')
                                 ->join('product_sales', 'sales.id', '=', 'product_sales.sale_id')->where([
                                         ['product_sales.product_id', $product->id],
@@ -684,6 +687,15 @@ class ReportController extends Controller
                                 ])->whereDate('sales.created_at','>=', $start_date)
                                   ->whereDate('sales.created_at','<=', $end_date)
                                   ->first();
+                    }else{
+                        $lims_product_sale_data = DB::table('sales')
+                                ->join('product_sales', 'sales.id', '=', 'product_sales.sale_id')->where([
+                                        ['product_sales.product_id', $product->id],
+                                        ['sales.warehouse_id', $warehouse_id]
+                                ])->whereDate('sales.created_at','>=', $start_date)
+                                  ->whereDate('sales.created_at','<=', $end_date)
+                                  ->first();
+                    }
                 }
                 if($lims_product_sale_data) {
                     $product_name[] = $product->name;
@@ -798,7 +810,10 @@ class ReportController extends Controller
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
         $warehouse_id = $data['warehouse_id'];
-
+        $product_id = [];
+        $variant_id = [];
+        $product_name   = [];
+        $product_qty   = [];
         $lims_product_all = Product::select('id', 'name', 'qty', 'is_variant')->where('is_active', true)->get();
         foreach ($lims_product_all as $product) {
             $lims_product_sale_data = null;

@@ -106,6 +106,11 @@
         document.getElementById("content").style.display = "block";
       }
 
+      $('form').on('submit', function() {
+          $('button[type="submit"]').unbind('click');
+          $('button[type="submit"]').remove();
+      });
+      
       $("div.alert").delay(3000).slideUp(750);
       $('select').selectpicker({
           style: 'btn-link',

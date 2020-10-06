@@ -521,6 +521,9 @@
                 ?>
                 <ul id="report" class="collapse list-unstyled ">
                   @if($profit_loss_active)
+                  <li id="registers-menu"><a href="{{route('register.all')}}">{{trans('file.Cash Registers')}}</a></li>
+
+                  
                   <li id="profit-loss-report-menu">
                     {!! Form::open(['route' => 'report.profitLoss', 'method' => 'post', 'id' => 'profitLoss-report-form']) !!}
                     <input type="hidden" name="start_date" value="{{date('Y-m').'-'.'01'}}" />

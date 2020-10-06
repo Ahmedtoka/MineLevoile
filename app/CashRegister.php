@@ -20,4 +20,14 @@ class CashRegister extends Model
     {
         return $this->hasMany(\App\CashRegisterTransaction::class);
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(\App\Warehouse::class, 'warehouse_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\User::class);
+    }
 }

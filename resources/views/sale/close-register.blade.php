@@ -44,7 +44,8 @@
 					      	<div class="row">
 						        <div class="col-sm-12">
 						          <table class="table">
-						            <tbody><tr>
+						            <tbody>
+						           	<tr>
 						              <td>
 						                رصيد اول الدرج
 						              </td>
@@ -54,10 +55,10 @@
 						            </tr>
 						            <tr>
 						              <td>
-						                مبيعات الكاش
-						              
-						              </td><td>
-						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_cash}}</span>
+						                إجمالي المبيعات
+						              </td>
+						              <td>
+						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_pure_sale}}</span>
 						              </td>
 						            </tr>
 						            <tr>
@@ -70,11 +71,19 @@
 						            </tr>
 						            <tr>
 						              <td>
-						                إجمالي المبيعات
+						                مبيعات الكاش
+						              
+						              </td><td>
+						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_cash}}</span>
 						              </td>
+						            </tr>
+						            <tr class="success">
+						              <th>
+						                إجمالي مصاريف الفرع             </th>
 						              <td>
-						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_sale}}</span>
-						              </td>
+						                <b><span class="display_currency" data-currency_symbol="true" style="color:red">L.E {{$register_details->total_expense}}</span></b><br>
+						                <small>
+						                </td>
 						            </tr>
 						            <tr class="success">
 						              <th>
@@ -100,17 +109,11 @@
 						                <small>
 						                </td>
 						            </tr>
+						            
 						            <tr class="success">
 						              <th>
-						                إجمالي مصاريف الفرع             </th>
-						              <td>
-						                <b><span class="display_currency" data-currency_symbol="true" style="color:red">L.E {{$register_details->total_expense}}</span></b><br>
-						                <small>
-						                </td>
-						            </tr>
-						            <tr class="success">
-						              <th>
-						                إجمالي الكاش في الدرج              </th>
+						                إجمالي الكاش في الدرج 
+						            </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true">L.E {{$register_details->open_amount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_expense }}</span></b>
 						              </td>
@@ -125,7 +128,7 @@
 						            </tr>
 						            <tr class="success">
 						              <th>
-						                (مجموع الدرج (رصيد اول الدرج + كاش + فيزا
+						                (مجموع الدرج (كاش + فيزا
 
 						              </th>
 						              <td>

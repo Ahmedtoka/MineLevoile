@@ -77,5 +77,8 @@
 </html>
 <script type="text/javascript">
     
-
+    $('form').on('submit', function() {
+          $('button[type="submit"]').unbind('click');
+          $('button[type="submit"]').remove();
+      });
 </script>

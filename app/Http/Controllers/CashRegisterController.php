@@ -175,6 +175,7 @@ class CashRegisterController extends Controller
             'cash_registers.closing_note',
             'cash_registers.warehouse_id',
             DB::raw("SUM(IF(transaction_type='initial', amount, 0)) as open_amount"),
+            DB::raw("SUM(IF(transaction_type='sell', amount, 0)) as total_pure_sale"),
             DB::raw("SUM(IF(transaction_type='sell', amount, IF(transaction_type='refund', -1 * amount, 0))) as total_sale"),
             DB::raw("SUM(IF(pay_method='Cash', IF(transaction_type='sell', amount, 0), 0)) as total_cash"),
             DB::raw("SUM(IF(pay_method='Cheque', IF(transaction_type='sell', amount, 0), 0)) as total_cheque"),
@@ -294,5 +295,20 @@ class CashRegisterController extends Controller
         }
 
         
+    }
+
+    public function allCashRegisters() {
+
+        $registers = cashRegister::latest()->paginate(20);
+
+        return view('sale.all-registers', compact('registers'));
+    }
+
+    public function getRegisterShow(CashRegister $register)
+    {
+        $register_details =  $this->getRegisterTransactions($register->id);
+        $user_id = auth()->user()->id;
+        return view('sale.show-register')
+                    ->with(compact('register_details', 'register'));
     }
 }

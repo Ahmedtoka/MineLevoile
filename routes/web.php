@@ -106,6 +106,8 @@ Route::group(['middleware' => ['auth', 'active']], function() {
 	Route::post('open-register/store', 'CashRegisterController@store')->name('open.register.store'); // open register store
 	Route::get('cash-register/close/{id}', 'CashRegisterController@getCloseRegister')->name('register.close'); // close register
 	Route::post('cash-register/close/{cashRegister}/store', 'CashRegisterController@postCloseRegister')->name('register.close.post'); // close register
+	Route::get('cash-registers', 'CashRegisterController@allCashRegisters')->name('register.all'); // all register
+	Route::get('cash-register/show/{register}', 'CashRegisterController@getRegisterShow')->name('register.show'); // close register
 	Route::get('sales/lims_sale_search', 'SaleController@limsSaleSearch')->name('sale.search');
 	Route::get('sales/lims_product_search', 'SaleController@limsProductSearch')->name('product_sale.search');
 	Route::get('sales/getcustomergroup/{id}', 'SaleController@getCustomerGroup')->name('sale.getcustomergroup');

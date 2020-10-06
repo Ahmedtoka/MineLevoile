@@ -89,7 +89,7 @@
         
     <div id="receipt-data">
         <div class="centered">
-            <img src="https://www.levoilescarfs.com/wp-content/uploads/2020/04/logo.jpg" width="60%">
+            <img src="https://www.levoilescarfs.com/wp-content/uploads/2020/10/logo.png" width="85%">
             <h2>Branch: {{$lims_biller_data->company_name}}</h2>
             
         </div>
@@ -167,17 +167,20 @@
                     <td style="padding: 5px;width:40%">{{trans('file.Paid Amount')}}: {{number_format((float)$payment_data->amount + (float)$payment_data->change, 2, '.', '')}}</td>
                     <td style="padding: 5px;width:30%">{{trans('file.Change')}}: {{number_format((float)$payment_data->change, 2, '.', '')}}</td>
                 </tr>
-                <tr><td class="centered" colspan="3">El Marghani Branch: 126 El-Marghany st., next to Shawermer | Tel: 0222913400 </td></tr>
-                <tr><td class="centered" colspan="3">Hegaz Branch: 7 Ali Abd El-Razek st., parallel to Ammar Ibn Yasser st | Tel: 0226212206 </td></tr>
-                <tr><td class="centered" colspan="3">Abbas Branch: 35 Ezzat Salama st., end of Hussein Heikal st., Abbas El-Akkad | Tel: 0222726332 </td></tr>
-                <tr><td class="centered" colspan="3">El Nozha Branch: 4 El Nozha St.,Infront of Mobil gas station, Nasr City | Tel: 0224182448 </td></tr>
-                <tr><td class="centered" colspan="3">Galleria Mall Branch: S 90th st. Galleria Mall beside Dunkin' Donuts, front of Future university  | Tel: 01050092640 </td></tr>
-                <tr><td class="centered" colspan="3">Point 90 Branch: S 90th st. Point 90 Mall beside H&M, front of American university | Tel: 01050092670   </td></tr>
-                <tr><td class="centered" colspan="3">El Mohandessen Branch: 41 Shehab st. from Gamat El Dwal El Arabia St. Mohandessen. | Tel: 01050092690</td></tr>
-                <tr><td class="centered" colspan="3">{{trans('file.Thank you for shopping with us. Please come again')}}</td></tr>
+                <tr><td class="align-left" colspan="3">El Marghani Branch: 126 El-Marghany st., next to Shawermer | Tel: 0222913400 </td></tr>
+                <tr><td class="align-left" colspan="3">Hegaz Branch: 7 Ali Abd El-Razek st., parallel to Ammar Ibn Yasser st | Tel: 0226212206 </td></tr>
+                <tr><td class="align-left" colspan="3">Abbas Branch: 35 Ezzat Salama st., end of Hussein Heikal st., Abbas El-Akkad | Tel: 0222726332 </td></tr>
+                <tr><td class="align-left" colspan="3">El Nozha Branch: 4 El Nozha St.,Infront of Mobil gas station, Nasr City | Tel: 0224182448 </td></tr>
+                <tr><td class="align-left" colspan="3">Galleria Mall Branch: S 90th st. Galleria Mall beside Dunkin' Donuts, front of Future university  | Tel: 01050092640 </td></tr>
+                <tr><td class="align-left" colspan="3">Point 90 Branch: S 90th st. Point 90 Mall beside H&M, front of American university | Tel: 01050092670   </td></tr>
+                <tr><td class="align-left" colspan="3">El Mohandessen Branch: 41 Shehab st. from Gamat El Dwal El Arabia St. Mohandessen. | Tel: 01050092690</td></tr>
+                <tr><td class="align-left" colspan="3">{{trans('file.Thank you for shopping with us. Please come again')}}</td></tr>
                 @endforeach
-                <tr><td class="centered" colspan="3">ملحوظه هامه: جميع الإكسسوارات والباديهات لا ترد ولا تستبدل</td></tr>
-                <tr><td class="centered" colspan="3">المنتجات المباعه ترد خلال يومين وتستبدل خلال 14 يوم</td></tr>
+                <tr><td class="centered" colspan="3">ملحوظه هامه<br> جميع الإكسسوارات والباديهات لا ترد ولا تستبدل</td></tr>
+                <tr><td class="centered" colspan="3">المنتجات المباعه ترد خلال ٣ ايام وتستبدل خلال 14 يوم</td></tr>
+                <tr><td class="align-left" colspan="3"><img src="https://www.levoilescarfs.com/wp-content/uploads/2020/10/iconF.png" style="width: 20px; height: 20px;"> LeVoileScarfShops</td></tr>
+                <tr><td class="align-left" colspan="3"><img src="https://www.levoilescarfs.com/wp-content/uploads/2020/10/iconI.png" style="width: 20px; height: 20px;"> levoilescarfs</td></tr>
+                <tr><td class="centered" colspan="3">Customer Service<br> Tel: 01050092630</td></tr>
             </tbody>
         </table>
     </div>
