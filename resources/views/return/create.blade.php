@@ -21,7 +21,7 @@
                                             <label>{{trans('file.customer')}} *</label>
                                             <select required name="customer_id" id="customer_id" class="selectpicker form-control" data-live-search="true" id="customer-id" data-live-search-style="begins" title="Select customer...">
                                                 @foreach($lims_customer_list as $customer)
-                                                <option value="{{$customer->id}}">{{$customer->name . ' (' . $customer->phone_number . ')'}}</option>
+                                                <option value="{{$customer->id}}">{{$customer->phone_number . ' (' . $customer->name . ')'}}</option>
                                                 @endforeach
                                             </select>
                                         </div>

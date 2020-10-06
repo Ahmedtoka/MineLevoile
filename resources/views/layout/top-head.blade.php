@@ -109,6 +109,8 @@
       $('form').on('submit', function() {
           $('button[type="submit"]').unbind('click');
           $('button[type="submit"]').remove();
+          $('input[type="submit"]').unbind('click');
+          $('input[type="submit"]').remove();
       });
       
       $("div.alert").delay(3000).slideUp(750);

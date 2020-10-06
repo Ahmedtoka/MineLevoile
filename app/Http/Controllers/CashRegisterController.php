@@ -276,7 +276,7 @@ class CashRegisterController extends Controller
                     $cashRegister->update([
                         'total_cash' => $request->total_cash,
                         'total_card_slips' => $request->total_card_slips,
-                        'total_cheques' => $request->total_cheques,
+                        'total_cheques' => $request->total_cheques ?? '',
                         'closing_note' => $request->closing_note,
                         'next_day_amount' => abs($cashRegister->register_close_amount - $request->closing_amount),
                         'closing_amount' => $request->closing_amount,

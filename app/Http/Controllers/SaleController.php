@@ -781,6 +781,10 @@ class SaleController extends Controller
         $product_name = [];
         $product_qty = [];
         $product_data = [];
+        $product_type = [];
+        $product_id = [];
+        $product_list = [];
+        $qty_list = [];
         //product without variant
         foreach ($lims_product_warehouse_data as $product_warehouse) 
         {   
@@ -1319,7 +1323,7 @@ class SaleController extends Controller
     public function createSale($id)
     {
         $role = Role::find(Auth::user()->role_id);
-        if($role->hasPermissionTo('sales-edit')){
+        if($role->hasPermissionTo('sales-add')){
             $lims_biller_list = Biller::where('is_active', true)->get();
             $lims_customer_list = Customer::where('is_active', true)->get();
             $lims_customer_group_all = CustomerGroup::where('is_active', true)->get();

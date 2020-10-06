@@ -1118,7 +1118,7 @@
                           <label>{{trans('file.customer')}} *</label>
                           <select name="customer_id" class="selectpicker form-control" required data-live-search="true" id="customer-id" data-live-search-style="begins" title="Select customer...">
                               @foreach($lims_customer_list as $customer)
-                              <option value="{{$customer->id}}">{{$customer->name . ' (' . $customer->phone_number. ')'}}</option>
+                              <option value="{{$customer->id}}">{{$customer->phone_number . ' (' . $customer->name . ')'}}</option>
                               @endforeach
                           </select>
                       </div>
@@ -1275,6 +1275,8 @@
       $('form').on('submit', function() {
           $('button[type="submit"]').unbind('click');
           $('button[type="submit"]').remove();
+          $('input[type="submit"]').unbind('click');
+          $('input[type="submit"]').remove();
       });
 
       $(".daterangepicker-field").daterangepicker({

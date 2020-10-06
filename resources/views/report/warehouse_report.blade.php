@@ -65,9 +65,6 @@
         <a class="nav-link" href="#warehouse-purchase" role="tab" data-toggle="tab">{{trans('file.Purchase')}}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#warehouse-quotation" role="tab" data-toggle="tab">{{trans('file.Quotation')}}</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="#warehouse-return" role="tab" data-toggle="tab">{{trans('file.return')}}</a>
       </li>
       <li class="nav-item">
@@ -85,15 +82,25 @@
                             <th>{{trans('file.Date')}}</th>
                             <th>{{trans('file.reference')}} No</th>
                             <th>{{trans('file.customer')}}</th>
-                            <th>{{trans('file.product')}} ({{trans('file.qty')}})</th>
+                            <th>{{trans('file.product')}}</th>
+                            <th>{{trans('file.qty')}}</th>
                             <th>{{trans('file.grand total')}}</th>
                             <th>{{trans('file.Paid')}}</th>
                             <th>{{trans('file.Due')}}</th>
                             <th>{{trans('file.Status')}}</th>
+                            <th>{{trans('file.Payment')}}</th>
+                            <th>{{trans('file.Sale Note')}}</th>
+                            <th>{{trans('file.Staff Note')}}</th>
+                            <th>{{trans('file.Payment Note')}}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($lims_sale_data as $key=>$sale)
+                        <?php
+                            $payment = App\Payment::where('sale_id', $sale->id)->first();
+                            $payment_method = optional($payment)->paying_method;
+                            $payment_note = optional($payment)->payment_note;
+                        ?>
                         <tr>
                             <td>{{$key}}</td>
                             <td>{{date($general_setting->date_format, strtotime($sale->created_at->toDateString())) . ' '. $sale->created_at->toTimeString()}}</td>
@@ -107,15 +114,17 @@
                                         $variant = App\Variant::find($product_sale_data->variant_id);
                                         $product->name .= ' ['.$variant->name.']';
                                     }
-                                    $unit = App\Unit::find($product_sale_data->sale_unit_id);
                                 ?>
-                                @if($unit)
-                                    {{$product->name.' ('.$product_sale_data->qty.' '.$unit->unit_code.')'}}
-                                @else
-                                    {{$product->name.' ('.$product_sale_data->qty.')'}}
-                                @endif
-                                <br>
+                                {{$product->name}}
                                 @endforeach
+                            </td>
+                            <td>
+                                <?php $unit = App\Unit::find($product_sale_data->sale_unit_id); ?>
+                                @if($unit)
+                                    {{$product_sale_data->qty.' '.$unit->unit_code}}
+                                @else
+                                    {{$product_sale_data->qty}}
+                                @endif
                             </td>
                             <td>{{$sale->grand_total}}</td>
                             <td>{{$sale->paid_amount}}</td>
@@ -125,6 +134,16 @@
                             @else
                             <td><div class="badge badge-danger">{{trans('file.Pending')}}</div></td>
                             @endif
+                            <td>
+                                <div class="badge badge-success">{{$payment_method}}</div>
+                            </td>
+                            <td>
+                                {{$sale->sale_note}}
+                            </td>
+                            <td>
+                                {{$sale->staff_note}}
+                            </td>
+                            <td>{{$payment_note}}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -135,9 +154,14 @@
                             <th></th>
                             <th></th>
                             <th></th>
+                            <th></th>
                             <th>0.00</th>
                             <th>0.00</th>
                             <th>0.00</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                             <th></th>
                         </tr>
                     </tfoot>
@@ -225,79 +249,6 @@
             </div>
         </div>
 
-        <div role="tabpanel" class="tab-pane fade" id="warehouse-quotation">
-            <div class="table-responsive mb-4">
-                <table id="quotation-table" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="not-exported-quotation"></th>
-                            <th>{{trans('file.Date')}}</th>
-                            <th>{{trans('file.reference')}}</th>
-                            <th>{{trans('file.customer')}}</th>
-                            <th>{{trans('file.Supplier')}}</th>
-                            <th>{{trans('file.product')}} ({{trans('file.qty')}})</th>
-                            <th>{{trans('file.grand total')}}</th>
-                            <th>{{trans('file.Status')}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($lims_quotation_data as $key=>$quotation)
-                        <tr>
-                            <td>{{$key}}</td>
-                            <?php 
-                                $supplier = DB::table('suppliers')->find($quotation->supplier_id);
-                            ?>
-                            <td>{{ date($general_setting->date_format, strtotime($quotation->created_at->toDateString())) }}<br>{{$quotation->created_at->toTimeString()}}</td>
-                            <td>{{$quotation->reference_no}}</td>
-                            <td>{{$quotation->customer->name}}</td>
-                            @if($supplier)
-                                <td>{{$supplier->name}}</td>
-                            @else
-                                <td>N/A</td>
-                            @endif
-                            <td>
-                                @foreach($lims_product_quotation_data[$key] as $product_quotation_data)
-                                <?php 
-                                    $product = App\Product::select('name')->find($product_quotation_data->product_id);
-                                    if($product_quotation_data->variant_id) {
-                                        $variant = App\Variant::find($product_quotation_data->variant_id);
-                                        $product->name .= ' ['.$variant->name.']';
-                                    }
-                                    $unit = App\Unit::find($product_quotation_data->sale_unit_id);
-                                ?>
-                                @if($unit)
-                                    {{$product->name.' ('.$product_quotation_data->qty.' '.$unit->unit_code.')'}}
-                                @else
-                                    {{$product->name.' ('.$product_quotation_data->qty.')'}}
-                                @endif
-                                <br>
-                                @endforeach
-                            </td>
-                            <td>{{$quotation->grand_total}}</td>
-                            @if($quotation->quotation_status == 1)
-                            <td><div class="badge badge-danger">{{trans('file.Pending')}}</div></td>
-                            @elseif($quotation->quotation_status == 2)
-                            <td><div class="badge badge-success">{{trans('file.Sent')}}</div></td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="tfoot active">
-                        <tr>
-                            <th></th>
-                            <th>Total:</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th>0.00</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
         <div role="tabpanel" class="tab-pane fade" id="warehouse-return">
             <div class="table-responsive mb-4">
                 <table id="return-table" class="table table-hover">
@@ -310,6 +261,9 @@
                             <th>{{trans('file.Biller')}}</th>
                             <th>{{trans('file.product')}} ({{trans('file.qty')}})</th>
                             <th>{{trans('file.grand total')}}</th>
+                            <th>{{trans('file.Return Note')}}</th>
+                            <th>{{trans('file.Staff Note')}}</th>
+                            <th>{{trans('file.Created By')}}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -339,6 +293,9 @@
                                 @endforeach
                             </td>
                             <td>{{number_format((float)($return->grand_total), 2, '.', '')}}</td>
+                            <td>{{$return->return_note}}</td>
+                            <td>{{$return->staff_note}}</td>
+                            <td>{{$return->user->name}}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -351,6 +308,9 @@
                             <th></th>
                             <th></th>
                             <th>0.00</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -588,92 +548,6 @@
         }
     }
 
-    $('#quotation-table').DataTable( {
-        "order": [],
-        'columnDefs': [
-            {
-                "orderable": false,
-                'targets': 0
-            },
-            {
-                'render': function(data, type, row, meta){
-                    if(type === 'display'){
-                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                    }
-
-                   return data;
-                },
-                'checkboxes': {
-                   'selectRow': true,
-                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                },
-                'targets': [0]
-            }
-        ],
-        'select': { style: 'multi',  selector: 'td:first-child'},
-        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        dom: '<"row"lfB>rtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-quotation)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_quotation(dt, true);
-                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_quotation(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'csv',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_quotation(dt, true);
-                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_quotation(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'print',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_quotation(dt, true);
-                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                    datatable_sum_quotation(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'colvis',
-                columns: ':gt(0)'
-            }
-        ],
-        drawCallback: function () {
-            var api = this.api();
-            datatable_sum_quotation(api, false);
-        }
-    } );
-
-    function datatable_sum_quotation(dt_selector, is_calling_first) {
-        if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-            var rows = dt_selector.rows( '.selected' ).indexes();
-
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-        }
-        else {
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-        }
-    }
 
     $('#return-table').DataTable( {
         "order": [],

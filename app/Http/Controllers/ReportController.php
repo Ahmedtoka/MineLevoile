@@ -919,6 +919,9 @@ class ReportController extends Controller
         foreach ($lims_return_data as $key => $return) {
             $lims_product_return_data[$key] = ProductReturn::where('return_id', $return->id)->get();
         }
+
+        
+
         $lims_warehouse_list = Warehouse::where('is_active', true)->get();
         return view('report.warehouse_report', compact('warehouse_id', 'start_date', 'end_date', 'lims_purchase_data', 'lims_product_purchase_data', 'lims_sale_data', 'lims_product_sale_data', 'lims_warehouse_list', 'lims_quotation_data', 'lims_product_quotation_data', 'lims_return_data', 'lims_product_return_data', 'lims_expense_data'));
     }

@@ -8,642 +8,810 @@
 @endif
 
 <section class="forms pos-section">
-    <div class="row">
-        <audio id="mysoundclip1" preload="auto">
-            <source src="{{url('beep/beep-timber.mp3')}}"></source>
-        </audio>
-        <audio id="mysoundclip2" preload="auto">
-            <source src="{{url('beep/beep-07.mp3')}}"></source>
-        </audio>
-        <div class="col-md-7 pr-0">
-            <div class="card">
-                <div class="card-body">
-                    {!! Form::open(['route' => 'sales.store', 'method' => 'post', 'files' => true, 'class' => 'payment-form']) !!}
-                    @php
-                        if($lims_pos_setting_data)
-                            $keybord_active = $lims_pos_setting_data->keybord_active;
-                        else
-                            $keybord_active = 0;
+    <div class="container-fluid">
+        <div class="row">
+            <audio id="mysoundclip1" preload="auto">
+                <source src="{{url('beep/beep-timber.mp3')}}"></source>
+            </audio>
+            <audio id="mysoundclip2" preload="auto">
+                <source src="{{url('beep/beep-07.mp3')}}"></source>
+            </audio>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body" style="padding-bottom: 0">
+                        {!! Form::open(['route' => 'sales.store', 'method' => 'post', 'files' => true, 'class' => 'payment-form']) !!}
+                        @php
+                            if($lims_pos_setting_data)
+                                $keybord_active = $lims_pos_setting_data->keybord_active;
+                            else
+                                $keybord_active = 0;
 
-                        $customer_active = DB::table('permissions')
-                          ->join('role_has_permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
-                          ->where([
-                            ['permissions.name', 'customers-add'],
-                            ['role_id', \Auth::user()->role_id] ])->first();
-
-                        if($lims_sale_data->coupon_id)
-                            $lims_coupon_data = DB::table('coupons')->find($lims_sale_data->coupon_id);
-                    @endphp
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        @if($lims_pos_setting_data)
-                                        <input type="hidden" name="warehouse_id_hidden" value="{{$lims_sale_data->warehouse_id}}">
-                                        @endif
-                                        <select required id="warehouse_id" name="warehouse_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select warehouse...">
-                                            @foreach($lims_warehouse_list as $warehouse)
-                                            <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
-                                            @endforeach
-                                        </select>
+                            $customer_active = DB::table('permissions')
+                              ->join('role_has_permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
+                              ->where([
+                                ['permissions.name', 'customers-add'],
+                                ['role_id', \Auth::user()->role_id] ])->first();
+                        @endphp
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            @if($lims_pos_setting_data)
+                                            <input type="hidden" name="warehouse_id_hidden" value="{{$lims_sale_data->warehouse_id}}">
+                                            @endif
+                                            <select required id="warehouse_id" name="warehouse_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select warehouse...">
+                                                @foreach($lims_warehouse_list as $warehouse)
+                                                <option value="{{$warehouse->id}}">{{$warehouse->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        @if($lims_pos_setting_data)
-                                        <input type="hidden" name="biller_id_hidden" value="{{$lims_sale_data->biller_id}}">
-                                        @endif
-                                        <select required id="biller_id" name="biller_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Biller...">
-                                        @foreach($lims_biller_list as $biller)
-                                        <option value="{{$biller->id}}">{{$biller->name . ' (' . $biller->company_name . ')'}}</option>
-                                        @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        @if($lims_pos_setting_data)
-                                        <input type="hidden" name="customer_id_hidden" value="{{$lims_sale_data->customer_id}}">
-                                        @endif
-                                        <div class="input-group pos">
-                                            <select required name="customer_id" id="customer_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select customer...">
-                                            @foreach($lims_customer_list as $customer)
-                                                @php $deposit[$customer->id] = $customer->deposit - $customer->expense; @endphp
-                                                <option value="{{$customer->id}}">{{$customer->name . ' (' . $customer->phone_number . ')'}}</option>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            @if($lims_pos_setting_data)
+                                            <input type="hidden" name="biller_id_hidden" value="{{$lims_sale_data->biller_id}}">
+                                            @endif
+                                            <select required id="biller_id" name="biller_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Biller...">
+                                            @foreach($lims_biller_list as $biller)
+                                            <option value="{{$biller->id}}">{{$biller->name . ' (' . $biller->company_name . ')'}}</option>
                                             @endforeach
                                             </select>
-                                            @if($customer_active)
-                                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addCustomer"><i class="dripicons-plus"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            @if($lims_pos_setting_data)
+                                            <input type="hidden" name="customer_id_hidden" value="{{$lims_sale_data->customer_id}}">
                                             @endif
+                                            <div class="input-group pos">
+                                                <select required name="customer_id" id="customer_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select customer...">
+                                                @foreach($lims_customer_list as $customer)
+                                                    @php $deposit[$customer->id] = $customer->deposit - $customer->expense; @endphp
+                                                    <option value="{{$customer->id}}">{{$customer->phone_number . ' (' . $customer->name . ')'}}</option>
+                                                @endforeach
+                                                </select>
+                                                @if($customer_active)
+                                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addCustomer"><i class="dripicons-plus"></i></button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="search-box form-group">
+                                            <input type="text" name="product_code_name" id="lims_productcodeSearch" placeholder="Scan/Search product by name/code" class="form-control" autofocus />
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="search-box form-group">
-                                        <input type="text" name="product_code_name" id="lims_productcodeSearch" placeholder="Scan/Search product by name/code" class="form-control" autofocus />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="table-responsive">
-                                    <table id="myTable" class="table table-hover order-list table-fixed">
-                                        <thead>
-                                            <tr>
-                                                <th class="col-sm-4">{{trans('file.product')}}</th>
-                                                <th class="col-sm-2">{{trans('file.Price')}}</th>
-                                                <th class="col-sm-3">{{trans('file.Quantity')}}</th>
-                                                <th class="col-sm-2">{{trans('file.Subtotal')}}</th>
-                                                <th class="col-sm-1"><i class="dripicons-trash"></i></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php 
-                                            $temp_unit_name = [];
-                                            $temp_unit_operator = [];
-                                            $temp_unit_operation_value = [];
-                                        ?>
-                                            @foreach($lims_product_sale_data as $product_sale)
-                                            <tr>
-                                            <?php 
-                                                $product_data = DB::table('products')->find($product_sale->product_id);
-                                                if($product_sale->variant_id) {
-                                                    $product_variant_data = \App\ProductVariant::select('id', 'item_code')->FindExactProduct($product_data->id, $product_sale->variant_id)->first();
-                                                    $product_data->code = $product_variant_data->item_code;
-                                                }
-                                                
-                                                if($product_data->tax_method == 1){
-                                                    $product_price = $product_sale->net_unit_price + ($product_sale->discount / $product_sale->qty);
-                                                }
-                                                elseif ($product_data->tax_method == 2) {
-                                                    $product_price =($product_sale->total / $product_sale->qty) + ($product_sale->discount / $product_sale->qty);
-                                                }
+                                <div class="form-group">
+                                    <div class="table-responsive transaction-list">
+                                        <table id="myTable" class="table table-hover table-striped order-list table-fixed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-sm-4">{{trans('file.product')}}</th>
+                                                    <th class="col-sm-2">{{trans('file.Price')}}</th>
+                                                    <th class="col-sm-3">{{trans('file.Quantity')}}</th>
+                                                    <th class="col-sm-2">{{trans('file.Subtotal')}}</th>
+                                                    <th class="col-sm-1"><i class="dripicons-trash"></i></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php 
+                                                    $temp_unit_name = [];
+                                                    $temp_unit_operator = [];
+                                                    $temp_unit_operation_value = [];
+                                                ?>
+                                                @foreach($lims_product_sale_data as $product_sale)
+                                                <tr>
+                                                <?php 
+                                                    $product_data = DB::table('products')->find($product_sale->product_id);
+                                                    if($product_sale->variant_id) {
+                                                        $product_variant_data = \App\ProductVariant::select('id', 'item_code')->FindExactProduct($product_data->id, $product_sale->variant_id)->first();
+                                                        $product_data->code = $product_variant_data->item_code;
+                                                    }
+                                                    
+                                                    if($product_data->tax_method == 1){
+                                                        $product_price = $product_sale->net_unit_price + ($product_sale->discount / $product_sale->qty);
+                                                    }
+                                                    elseif ($product_data->tax_method == 2) {
+                                                        $product_price =($product_sale->total / $product_sale->qty) + ($product_sale->discount / $product_sale->qty);
+                                                    }
 
-                                                $tax = DB::table('taxes')->where('rate',$product_sale->tax_rate)->first();
-                                                $unit_name = array();
-                                                $unit_operator = array();
-                                                $unit_operation_value = array();
-                                                if($product_data->type == 'standard'){
-                                                    $units = DB::table('units')->where('base_unit', $product_data->unit_id)->orWhere('id', $product_data->unit_id)->get();
-                        
-                                                    foreach($units as $unit) {
-                                                        if($product_sale->sale_unit_id == $unit->id) {
-                                                            array_unshift($unit_name, $unit->unit_name);
-                                                            array_unshift($unit_operator, $unit->operator);
-                                                            array_unshift($unit_operation_value, $unit->operation_value);
+                                                    $tax = DB::table('taxes')->where('rate',$product_sale->tax_rate)->first();
+                                                    $unit_name = array();
+                                                    $unit_operator = array();
+                                                    $unit_operation_value = array();
+                                                    if($product_data->type == 'standard'){
+                                                        $units = DB::table('units')->where('base_unit', $product_data->unit_id)->orWhere('id', $product_data->unit_id)->get();
+                            
+                                                        foreach($units as $unit) {
+                                                            if($product_sale->sale_unit_id == $unit->id) {
+                                                                array_unshift($unit_name, $unit->unit_name);
+                                                                array_unshift($unit_operator, $unit->operator);
+                                                                array_unshift($unit_operation_value, $unit->operation_value);
+                                                            }
+                                                            else {
+                                                                $unit_name[]  = $unit->unit_name;
+                                                                $unit_operator[] = $unit->operator;
+                                                                $unit_operation_value[] = $unit->operation_value;
+                                                            }
                                                         }
-                                                        else {
-                                                            $unit_name[]  = $unit->unit_name;
-                                                            $unit_operator[] = $unit->operator;
-                                                            $unit_operation_value[] = $unit->operation_value;
+
+                                                        if($unit_operator[0] == '*'){
+                                                            $product_price = $product_price / $unit_operation_value[0];
+                                                        }
+                                                        elseif($unit_operator[0] == '/'){
+                                                            $product_price = $product_price * $unit_operation_value[0];
                                                         }
                                                     }
-
-                                                    if($unit_operator[0] == '*'){
-                                                        $product_price = $product_price / $unit_operation_value[0];
+                                                    else {
+                                                        $unit_name[] = 'n/a'. ',';
+                                                        $unit_operator[] = 'n/a'. ',';
+                                                        $unit_operation_value[] = 'n/a'. ',';
                                                     }
-                                                    elseif($unit_operator[0] == '/'){
-                                                        $product_price = $product_price * $unit_operation_value[0];
-                                                    }
-                                                }
-                                                else {
-                                                    $unit_name[] = 'n/a'. ',';
-                                                    $unit_operator[] = 'n/a'. ',';
-                                                    $unit_operation_value[] = 'n/a'. ',';
-                                                }
-                                                $temp_unit_name = $unit_name = implode(",",$unit_name) . ',';
+                                                    $temp_unit_name = $unit_name = implode(",",$unit_name) . ',';
 
-                                                $temp_unit_operator = $unit_operator = implode(",",$unit_operator) .',';
+                                                    $temp_unit_operator = $unit_operator = implode(",",$unit_operator) .',';
 
-                                                $temp_unit_operation_value = $unit_operation_value =  implode(",",$unit_operation_value) . ',';
-                                            ?>
-                                                <td class="col-sm-4 product-title"><strong>{{$product_data->name}}</strong> [{{$product_data->code}}] <button type="button" class="edit-product btn btn-link" data-toggle="modal" data-target="#editModal"> <i class="dripicons-document-edit"></i></button> </td>
-                                                <td class="col-sm-2 product-price">{{ number_format((float)($product_sale->total / $product_sale->qty), 2, '.', '') }}</td>
-                                                <td class="col-sm-3"><div class="input-group"><span class="input-group-btn"><button type="button" class="btn btn-default minus"><span class="dripicons-minus"></span></button></span><input type="text" name="qty[]" class="form-control qty numkey input-number" value="{{$product_sale->qty}}" step="any" required><span class="input-group-btn"><button type="button" class="btn btn-default plus"><span class="dripicons-plus"></span></button></span></div></td>
-                                                <td class="col-sm-2 sub-total">{{ number_format((float)$product_sale->total, 2, '.', '') }}</td>
-                                                <td class="col-sm-1"><button type="button" class="ibtnDel btn btn-danger btn-sm">X</button></td>
-                                                <input type="hidden" class="product-code" name="product_code[]" value="{{$product_data->code}}"/>
-                                                <input type="hidden" name="product_id[]" value="{{$product_data->id}}"/>
-                                                <input type="hidden" class="product_price" name="product_price[]" value="{{$product_price}}"/>
-                                                <input type="hidden" class="net_unit_price" name="net_unit_price[]" value="{{$product_sale->net_unit_price}}" />
-                                                <input type="hidden" class="discount-value" name="discount[]" value="{{$product_sale->discount}}" />
-                                                <input type="hidden" class="tax-rate" name="tax_rate[]" value="{{$product_sale->tax_rate}}"/>
-                                                @if($tax)
-                                                <input type="hidden" class="tax-name" value="{{$tax->name}}" />
-                                                @else
-                                                <input type="hidden" class="tax-name" value="No Tax" />
-                                                @endif
-                                                <input type="hidden" class="tax-method" value="{{$product_data->tax_method}}"/>
-                                                <input type="hidden" class="tax-value" name="tax[]" value="{{$product_sale->tax}}" />
-                                                <input type="hidden" class="total-discount" value="{{$product_sale->discount}}">
-                                                <input type="hidden" class="subtotal-value" name="subtotal[]" value="{{$product_sale->total}}" />
-                                                <input type="hidden" class="sale-unit" name="sale_unit[]" value="{{$unit_name}}"/>
-                                                <input type="hidden" class="sale-unit-operator" value="{{$unit_operator}}"/>
-                                                <input type="hidden" class="sale-unit-operation-value" value="{{$unit_operation_value}}"/>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot class="tfoot active">
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <input type="hidden" name="total_qty" value="{{$lims_sale_data->total_qty}}" />
+                                                    $temp_unit_operation_value = $unit_operation_value =  implode(",",$unit_operation_value) . ',';
+                                                ?>
+                                                    <td class="col-sm-4 product-title"><strong>{{$product_data->name}}</strong> [{{$product_data->code}}] <button type="button" class="edit-product btn btn-link" data-toggle="modal" data-target="#editModal"> <i class="dripicons-document-edit"></i></button> </td>
+                                                    <td class="col-sm-2 product-price">{{ number_format((float)($product_sale->total / $product_sale->qty), 2, '.', '') }}</td>
+                                                    <td class="col-sm-3"><div class="input-group"><span class="input-group-btn"><button type="button" class="btn btn-default minus"><span class="dripicons-minus"></span></button></span><input type="text" name="qty[]" class="form-control qty numkey input-number" value="{{$product_sale->qty}}" step="any" required><span class="input-group-btn"><button type="button" class="btn btn-default plus"><span class="dripicons-plus"></span></button></span></div></td>
+                                                    <td class="col-sm-2 sub-total">{{ number_format((float)$product_sale->total, 2, '.', '') }}</td>
+                                                    <td class="col-sm-1"><button type="button" class="ibtnDel btn btn-danger btn-sm">X</button></td>
+                                                    <input type="hidden" class="product-code" name="product_code[]" value="{{$product_data->code}}"/>
+                                                    <input type="hidden" name="product_id[]" value="{{$product_data->id}}"/>
+                                                    <input type="hidden" class="product_price" name="product_price[]" value="{{$product_price}}"/>
+                                                    <input type="hidden" class="net_unit_price" name="net_unit_price[]" value="{{$product_sale->net_unit_price}}" />
+                                                    <input type="hidden" class="discount-value" name="discount[]" value="{{$product_sale->discount}}" />
+                                                    <input type="hidden" class="tax-rate" name="tax_rate[]" value="{{$product_sale->tax_rate}}"/>
+                                                    @if($tax)
+                                                    <input type="hidden" class="tax-name" value="{{$tax->name}}" />
+                                                    @else
+                                                    <input type="hidden" class="tax-name" value="No Tax" />
+                                                    @endif
+                                                    <input type="hidden" class="tax-method" value="{{$product_data->tax_method}}"/>
+                                                    <input type="hidden" class="tax-value" name="tax[]" value="{{$product_sale->tax}}" />
+                                                    <input type="hidden" class="total-discount" value="{{$product_sale->discount}}">
+                                                    <input type="hidden" class="subtotal-value" name="subtotal[]" value="{{$product_sale->total}}" />
+                                                    <input type="hidden" class="sale-unit" name="sale_unit[]" value="{{$unit_name}}"/>
+                                                    <input type="hidden" class="sale-unit-operator" value="{{$unit_operator}}"/>
+                                                    <input type="hidden" class="sale-unit-operation-value" value="{{$unit_operation_value}}"/>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <input type="hidden" name="total_discount" value="{{$lims_sale_data->total_discount}}" />
+                                <div class="row" style="display: none;">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" name="total_qty" value="{{$lims_sale_data->total_qty}}" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <input type="hidden" name="total_tax" value="{{$lims_sale_data->total_tax}}"/>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" name="total_discount" value="{{$lims_sale_data->total_discount}}" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <input type="hidden" name="total_price" value="{{$lims_sale_data->total_price}}" />
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" name="total_tax" value="{{$lims_sale_data->total_tax}}"/>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <input type="hidden" name="item" value="{{$lims_sale_data->item}}" />
-                                        <input type="hidden" name="order_tax" value="{{$lims_sale_data->order_tax}}" />
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" name="total_price" value="{{$lims_sale_data->total_price}}" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <input type="hidden" name="grand_total" value="{{$lims_sale_data->grand_total}}" />
-                                        <input type="hidden" name="sale_status" value="1" />
-                                        @if($lims_sale_data->coupon_id)
-                                            @php  
-                                                $coupon = \App\Coupon::find($lims_sale_data->coupon_id)
-                                            @endphp
-                                            <input type="hidden" name="coupon_active" value="1">
-                                        @else
-                                            <input type="hidden" name="coupon_active">
-                                        @endif
-                                        <input type="hidden" name="coupon_id" value="{{$lims_sale_data->coupon_id}}">
-                                        <input type="hidden" name="coupon_discount" value="{{$lims_sale_data->coupon_discount}}"/>
-                                        <input type="hidden" name="pos" value="1" />
-                                        <input type="hidden" name="sale_id" value="{{$lims_sale_data->id}}" />
-                                        <input type="hidden" name="draft" value="1" />
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" name="item" value="{{$lims_sale_data->item}}" />
+                                            <input type="hidden" name="order_tax" value="{{$lims_sale_data->order_tax}}" />
+                                        </div>
                                     </div>
-                                </div>
-
-                            </div>
-                            <div class="form-group">
-                                <table class="table table-bordered table-condensed totals">
-                                    <tr>
-                                        <td style="width:10%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.Items')}}</strong><br>
-                                        <span id="item">{{$lims_sale_data->item}}( {{$lims_sale_data->total_qty}})</span>
-                                        </td>
-                                        <td style="width:15%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.Total')}}</strong><br>
-                                        <span id="subtotal">{{number_format((float)($lims_sale_data->total_price), 2, '.', '')}}</span>
-                                        </td>
-                                        <td style="width:15%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.Discount')}}</strong>
-                                            <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#order-discount"> <i class="dripicons-document-edit"></i></button><br>
-                                            <span id="discount">{{number_format((float)$lims_sale_data->order_discount, 2, '.', '') }}</span>
-                                        </td>
-                                        <td style="width:15%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.Coupon')}}</strong>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <input type="hidden" name="grand_total" value="{{$lims_sale_data->grand_total}}" />
+                                            <input type="hidden" name="sale_status" value="1" />
                                             @if($lims_sale_data->coupon_id)
-                                            <button type="button" class="btn btn-link btn-sm" disabled><i class="dripicons-document-edit"></i></button><br>
+                                                @php  
+                                                    $coupon = \App\Coupon::find($lims_sale_data->coupon_id)
+                                                @endphp
+                                                <input type="hidden" name="coupon_active" value="1">
                                             @else
-                                            <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#coupon-modal"><i class="dripicons-document-edit"></i></button><br>
+                                                <input type="hidden" name="coupon_active">
                                             @endif
-                                            <span id="coupon-text">{{number_format((float)$lims_sale_data->coupon_discount, 2, '.', '') }}</span>
-                                        </td>
-                                        <td style="width:15%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.Tax')}}</strong>
-                                        <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#order-tax"><i class="dripicons-document-edit"></i></button><br>
-                                        <span id="tax">{{number_format((float)$lims_sale_data->order_tax, 2, '.', '')}}</span>
-                                        </td>
-                                        <td style="width:15%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.Shipping')}}</strong>
-                                            <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#shipping-cost-modal"><i class="dripicons-document-edit"></i></button><br>
-                                            <span id="shipping-cost">{{number_format((float)($lims_sale_data->shipping_cost), 2, '.', '')}}</span>
-                                        </td>
-                                        <td style="width:15%; padding: 0 0 0 10px; color: #000;"><strong>{{trans('file.grand total')}}</strong><br>
-                                        <span id="grand-total">{{number_format((float)($lims_sale_data->grand_total), 2, '.', '')}}</span>
-                                        </td>
-                                    </tr>
-                                </table>
+                                            <input type="hidden" name="coupon_id" value="{{$lims_sale_data->coupon_id}}">
+                                            <input type="hidden" name="coupon_discount" value="{{$lims_sale_data->coupon_discount}}"/>
+                                            <input type="hidden" name="pos" value="1" />
+                                            <input type="hidden" name="sale_id" value="{{$lims_sale_data->id}}" />
+                                            <input type="hidden" name="draft" value="1" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 totals" style="border-top: 2px solid #e4e6fc; padding-top: 10px;">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <span class="totals-title">{{trans('file.Items')}}</span><span id="item">{{$lims_sale_data->item}}( {{$lims_sale_data->total_qty}})</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="totals-title">{{trans('file.Total')}}</span><span id="subtotal">{{number_format((float)($lims_sale_data->total_price), 2, '.', '')}}</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="totals-title">{{trans('file.Discount')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#order-discount"> <i class="dripicons-document-edit"></i></button></span><span id="discount">{{number_format((float)$lims_sale_data->order_discount, 2, '.', '') }}</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="totals-title">{{trans('file.Coupon')}} 
+                                                @if($lims_sale_data->coupon_id)
+                                                <button type="button" class="btn btn-link btn-sm" disabled><i class="dripicons-document-edit"></i></button><br>
+                                                @else
+                                                <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#coupon-modal"><i class="dripicons-document-edit"></i></button><br>
+                                                @endif
+                                            </span><span id="coupon-text">{{number_format((float)$lims_sale_data->coupon_discount, 2, '.', '') }}</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="totals-title">{{trans('file.Tax')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#order-tax"><i class="dripicons-document-edit"></i></button></span><span id="tax">{{number_format((float)$lims_sale_data->order_tax, 2, '.', '')}}</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="totals-title">{{trans('file.Shipping')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#shipping-cost-modal"><i class="dripicons-document-edit"></i></button></span><span id="shipping-cost">{{number_format((float)($lims_sale_data->shipping_cost), 2, '.', '')}}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="column-5">
-                                <button style="background: #0066cc" type="button" class="btn btn-custom payment-btn" data-toggle="modal" data-target="#add-payment" id="credit-card-btn"><i class="fa fa-credit-card"></i> Card</button>   
-                            </div>
-                            <div class="column-5">
-                                <button style="background: #47d147" type="button" class="btn btn-custom payment-btn" data-toggle="modal" data-target="#add-payment" id="cash-btn"><i class="fa fa-money"></i> Cash</button>
-                            </div>
-                            <div class="column-5">
-                                <button style="background-color: #e28d02" type="button" class="btn btn-custom payment-btn" id="draft-btn"><i class="dripicons-flag"></i> Draft</button>
-                            </div>
-                            <div class="column-5">
-                                <button style="background-color: #cc0000;" type="button" class="btn btn-custom payment-btn" id="cancel-btn" onclick="return confirmCancel()"><i class="ion-android-cancel"></i> Cancel</button>
-                            </div>
+                        </div>                        
+                    </div>
+                    <div class="payment-amount">
+                        <h2>{{trans('file.grand total')}} <span id="grand-total">
+                            {{number_format((float)($lims_sale_data->grand_total), 2, '.', '')}}</span>
+                        </h2>
+                    </div>
+                    <div class="payment-options">
+                        <div class="column-5">
+                            <button style="background: #0984e3" type="button" class="btn btn-custom payment-btn" data-toggle="modal" data-target="#add-payment" id="credit-card-btn"><i class="fa fa-credit-card"></i> Card</button>   
                         </div>
-                    </div>                        
+                        <div class="column-5">
+                            <button style="background: #00cec9" type="button" class="btn btn-custom payment-btn" data-toggle="modal" data-target="#add-payment" id="cash-btn"><i class="fa fa-money"></i> Cash</button>
+                        </div>
+                        <div class="column-5">
+                            <button style="background-color: #e28d02" type="button" class="btn btn-custom" id="draft-btn"><i class="dripicons-flag"></i> Draft</button>
+                        </div>
+                        <div class="column-5">
+                            <button style="background-color: #d63031;" type="button" class="btn btn-custom" id="cancel-btn" onclick="return confirmCancel()"><i class="fa fa-close"></i> Cancel</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- order_discount modal -->
-        <div id="order-discount" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{trans('file.Order Discount')}}</h5>
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <input type="text" name="order_discount" class="form-control numkey" step="any" value="{{number_format((float)$lims_sale_data->order_discount, 2, '.', '')}}">
+            <!-- payment modal -->
+            <div id="add-payment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="exampleModalLabel" class="modal-title">{{trans('file.Finalize Sale')}}</h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
                         </div>
-                        <button type="button" name="order_discount_btn" class="btn btn-primary" data-dismiss="modal">{{trans('file.submit')}}</button>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-6 mt-1">
+                                            <label>{{trans('file.Recieved Amount')}} *</label>
+                                            <input type="text" name="paying_amount" class="form-control numkey" required step="any">
+                                        </div>
+                                        <div class="col-md-6 mt-1">
+                                            <label>{{trans('file.Paying Amount')}} *</label>
+                                            <input type="text" name="paid_amount" class="form-control numkey"  step="any">
+                                        </div>
+                                        <div class="col-md-6 mt-1">
+                                            <label>{{trans('file.Change')}} : </label>
+                                            <p id="change" class="ml-2">0.00</p>
+                                        </div>
+                                        <div class="col-md-6 mt-1">
+                                            <input type="hidden" name="paid_by_id">
+                                            <label>{{trans('file.Paid By')}}</label>
+                                            <select name="paid_by_id_select" class="form-control selectpicker">
+                                                <option value="1">Cash</option>
+                                                <option value="3">Credit Card</option>
+                                            </select>
+                                        </div>
+                                        <!-- <div class="form-group col-md-12 mt-3">
+                                            <div class="card-element form-control">
+                                            </div>
+                                            <div class="card-errors" role="alert"></div>
+                                        </div> -->
+
+                                       <!--  <div class="form-group col-md-12 cheque">
+                                            <label>{{trans('file.Cheque Number')}} *</label>
+                                            <input type="text" name="cheque_no" class="form-control">
+                                        </div> -->
+                                        <div class="form-group col-md-12">
+                                            <label>{{trans('file.Payment Note')}}</label>
+                                            <textarea id="payment_note" rows="2" class="form-control" name="payment_note"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                       <div class="col-md-6 form-group">
+                                            <label>{{trans('file.Sale Note')}}</label>
+                                            <textarea rows="3" class="form-control" name="sale_note"></textarea>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>{{trans('file.Staff Note')}}</label>
+                                            <textarea rows="3" class="form-control" name="staff_note"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="submit-btn" type="submit" class="btn btn-primary">{{trans('file.submit')}}</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 qc" data-initial="1">
+                                    <h4><strong>{{trans('file.Quick Cash')}}</strong></h4>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="10" type="button">10</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="20" type="button">20</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="50" type="button">50</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="100" type="button">100</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="500" type="button">500</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="1000" type="button">1000</button>
+                                    <button class="btn btn-block btn-danger qc-btn sound-btn" data-amount="0" type="button">{{trans('file.Clear')}}</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- coupon modal -->
-        <div id="coupon-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{trans('file.Coupon Code')}}</h5>
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+            <!-- order_discount modal -->
+            <div id="order-discount" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{trans('file.Order Discount')}}</h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" name="order_discount" class="form-control numkey" step="any" value="{{number_format((float)$lims_sale_data->order_discount, 2, '.', '')}}">
+                            </div>
+                            <button type="button" name="order_discount_btn" class="btn btn-primary" data-dismiss="modal">{{trans('file.submit')}}</button>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            @if($lims_sale_data->coupon_id)
-                                <input type="text" id="coupon-code" class="form-control" placeholder="Type Coupon Code..." value="{{$coupon->code}}" disabled>
-                            @else
-                                <input type="text" id="coupon-code" class="form-control" placeholder="Type Coupon Code...">
+                </div>
+            </div>
+            <!-- coupon modal -->
+            <div id="coupon-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{trans('file.Coupon Code')}}</h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                @if($lims_sale_data->coupon_id)
+                                    <input type="text" id="coupon-code" class="form-control" placeholder="Type Coupon Code..." value="{{$coupon->code}}" disabled>
+                                @else
+                                    <input type="text" id="coupon-code" class="form-control" placeholder="Type Coupon Code...">
+                                @endif
+                            </div>
+                            <button type="button" class="btn btn-primary coupon-check" data-dismiss="modal">{{trans('file.submit')}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- order_tax modal -->
+            <div id="order-tax" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{trans('file.Order Tax')}}</h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="hidden" name="order_tax_rate_hidden" value="{{$lims_sale_data->order_tax_rate}}">
+                                <select class="form-control" name="order_tax_rate">
+                                    <option value="0">No Tax</option>
+                                    @foreach($lims_tax_list as $tax)
+                                    <option value="{{$tax->rate}}">{{$tax->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button type="button" name="order_tax_btn" class="btn btn-primary" data-dismiss="modal">{{trans('file.submit')}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- shipping_cost modal -->
+            <div id="shipping-cost-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{trans('file.Shipping Cost')}}</h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" name="shipping_cost" class="form-control numkey" value="{{number_format((float)($lims_sale_data->shipping_cost), 2, '.', '')}}" step="any">
+                            </div>
+                            <button type="button" name="shipping_cost_btn" class="btn btn-primary" data-dismiss="modal">{{trans('file.submit')}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- payment modal -->
+            <div id="add-payment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="exampleModalLabel" class="modal-title">{{trans('file.Finalize Sale')}}</h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>{{trans('file.Recieved Amount')}} *</label>
+                                            <input type="text" name="paying_amount" class="form-control numkey"  step="any">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>{{trans('file.Paying Amount')}} *</label>
+                                            <input type="text" name="paid_amount" class="form-control numkey"  step="any">
+                                        </div>
+                                        <div class="col-md-6 mt-1">
+                                            <label>{{trans('file.Change')}} : </label>
+                                            <p id="change" class="ml-2">0.00</p>
+                                        </div>
+                                        <div class="col-md-6 mt-1">
+                                            <label>{{trans('file.Paid By')}}</label>
+                                            <select name="paid_by_id" class="form-control">
+                                                <option value="1">Cash</option>
+                                                <option value="2">Gift Card</option>
+                                                <option value="3">Credit Card</option>
+                                                <option value="4">Cheque</option>
+                                                <option value="5">Paypal</option>
+                                                <option value="6">Deposit</option>
+                                            </select>
+                                        </div>
+                                        <!-- <div class="form-group col-md-12 mt-3">
+                                            <div class="card-element form-control">
+                                            </div>
+                                            <div class="card-errors" role="alert"></div>
+                                        </div> -->
+                                        <div class="form-group col-md-12" id="gift-card">
+                                            <label> {{trans('file.Gift Card')}} *</label>
+                                            <input type="hidden" name="gift_card_id">
+                                            <select id="gift_card_id_select" name="gift_card_id_select" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Gift Card..."></select>
+                                        </div>
+                                        <div class="form-group col-md-12" id="cheque">
+                                            <div class="form-group">
+                                                <label>{{trans('file.Cheque Number')}} *</label>
+                                                <input type="text" name="cheque_no" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <label>{{trans('file.Payment Note')}}</label>
+                                            <textarea id="payment_note" rows="2" class="form-control" name="payment_note"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                       <div class="col-md-6 form-group">
+                                            <label>{{trans('file.Sale Note')}}</label>
+                                            <textarea rows="3" class="form-control" name="sale_note"></textarea>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>{{trans('file.Staff Note')}}</label>
+                                            <textarea rows="3" class="form-control" name="staff_note"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="submit-btn" type="submit" class="btn btn-primary">{{trans('file.submit')}}</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 qc" data-initial="1">
+                                    <h4><strong>{{trans('file.Quick Cash')}}</strong></h4>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="10" type="button">10</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="20" type="button">20</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="50" type="button">50</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="100" type="button">100</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="500" type="button">500</button>
+                                    <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="1000" type="button">1000</button>
+                                    <button class="btn btn-block btn-danger qc-btn sound-btn" data-amount="0" type="button">{{trans('file.Clear')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {!! Form::close() !!}
+            <!-- product list -->
+            <div class="col-md-6">
+                <!-- navbar-->
+                <header class="header">
+                    <nav class="navbar">
+                      <div class="container-fluid">
+                        <div class="navbar-holder d-flex align-items-center justify-content-between">
+                          <a id="toggle-btn" href="#" class="menu-btn"><i class="fa fa-bars"> </i></a>
+                          <div class="navbar-header">
+                          
+                          <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                            <li class="nav-item"><a id="btnFullscreen" title="Full Screen"><i class="dripicons-expand"></i></a></li> 
+                            <?php 
+                                $general_setting_permission = DB::table('permissions')->where('name', 'general_setting')->first();
+                                $general_setting_permission_active = DB::table('role_has_permissions')->where([
+                                            ['permission_id', $general_setting_permission->id],
+                                            ['role_id', Auth::user()->role_id]
+                                        ])->first();
+
+                                $pos_setting_permission = DB::table('permissions')->where('name', 'pos_setting')->first();
+
+                                $pos_setting_permission_active = DB::table('role_has_permissions')->where([
+                                    ['permission_id', $pos_setting_permission->id],
+                                    ['role_id', Auth::user()->role_id]
+                                ])->first();
+                            ?>
+                            @if($pos_setting_permission_active)
+                            <li class="nav-item"><a class="dropdown-item" href="{{route('setting.pos')}}"><i class="dripicons-gear"></i>  <span>{{trans('file.POS Setting')}}</span></a> </li>
                             @endif
+                            @if($alert_product > 0)
+                            <li class="nav-item">
+                                  <a rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-item"><i class="dripicons-bell"></i><span class="badge badge-danger">{{$alert_product}}</span>
+                                      <span class="caret"></span>
+                                      <span class="sr-only">Toggle Dropdown</span>
+                                  </a>
+                                  <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default notifications" user="menu">
+                                      <li class="notifications">
+                                        <a href="{{route('report.qtyAlert')}}" class="btn btn-link">{{$alert_product}} product exceeds alert quantity</a>
+                                      </li>
+                                  </ul>
+                            </li>
+                            @endif
+                            <li class="nav-item"> 
+                                <a class="dropdown-item" href="{{ url('read_me') }}" target="_blank"><i class="dripicons-information"></i> {{trans('file.Help')}}</a>
+                            </li>&nbsp;
+                            <li class="nav-item">
+                                  <a rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-item"><i class="dripicons-user"></i> <span>{{ucfirst(Auth::user()->name)}}</span> <i class="fa fa-angle-down"></i>
+                                  </a>
+                                  <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
+                                      <li> 
+                                        <a href="{{route('user.profile', ['id' => Auth::id()])}}"><i class="dripicons-user"></i> {{trans('file.profile')}}</a>
+                                      </li>
+                                      @if($general_setting_permission_active)
+                                      <li> 
+                                        <a href="{{route('setting.general')}}"><i class="dripicons-gear"></i> {{trans('file.settings')}}</a>
+                                      </li>
+                                      @endif
+                                      <li> 
+                                        <a href="{{url('my-transactions/'.date('Y').'/'.date('m'))}}"><i class="dripicons-swap"></i> {{trans('file.My Transaction')}}</a>
+                                      </li>
+                                      <li> 
+                                        <a href="{{url('holidays/my-holiday/'.date('Y').'/'.date('m'))}}"><i class="dripicons-vibrate"></i> {{trans('file.My Holiday')}}</a>
+                                      </li>
+                                      <li>
+                                        <a href="{{ route('logout') }}"
+                                           onclick="event.preventDefault();
+                                                         document.getElementById('logout-form').submit();"><i class="dripicons-power"></i>
+                                            {{trans('file.logout')}}
+                                        </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
+                                      </li>
+                                  </ul>
+                            </li> 
+                          </ul>
                         </div>
-                        <button type="button" class="btn btn-primary coupon-check" data-dismiss="modal">{{trans('file.submit')}}</button>
+                      </div>
+                    </nav>
+                </header>
+                <div class="filter-window">
+                    <div class="category mt-3">
+                        <div class="row ml-2 mr-2 px-2">
+                            <div class="col-7">Choose category</div>
+                            <div class="col-5 text-right">
+                                <span class="btn btn-default btn-sm">
+                                    <i class="dripicons-cross"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row ml-2 mt-3">
+                            @foreach($lims_category_list as $category)
+                            <div class="col-md-3 category-img text-center" data-category="{{$category->id}}">
+                                <img  src="{{url('images/product/zummXD2dvAtI.png')}}" />
+                                <p class="text-center"><b>{{$category->parent_id ? $category->getParent($category->parent_id) . ' >>' : ''}}</b> {{$category->name}}</p>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="brand mt-3">
+                        <div class="row ml-2 mr-2 px-2">
+                            <div class="col-7">Choose brand</div>
+                            <div class="col-5 text-right">
+                                <span class="btn btn-default btn-sm">
+                                    <i class="dripicons-cross"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row ml-2 mt-3">
+                            @foreach($lims_brand_list as $brand)
+                            @if($brand->image)
+                                <div class="col-md-3 brand-img text-center" data-brand="{{$brand->id}}">
+                                    <img  src="{{url('images/brand',$brand->image)}}" />
+                                    <p class="text-center">{{$brand->title}}</p>
+                                </div>
+                            @else
+                                <div class="col-md-3 brand-img" data-brand="{{$brand->id}}">
+                                    <img  src="{{url('images/product/zummXD2dvAtI.png')}}" />
+                                    <p class="text-center">{{$brand->title}}</p>
+                                </div>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <button class="btn btn-block btn-primary" id="category-filter">{{trans('file.category')}}</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-block btn-info" id="brand-filter">{{trans('file.Brand')}}</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-block btn-danger" id="featured-filter">{{trans('file.Featured')}}</button>
+                    </div>
+                    <div class="col-md-12 mt-1 table-container">
+                        <table id="product-table" class="table no-shadow product-list">
+                            <thead class="d-none">
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @for ($i=0; $i < ceil($product_number/5); $i++)
+                                <tr>
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[0+$i*5]->name}}" data-product ="{{$lims_product_list[0+$i*5]->code . ' (' . $lims_product_list[0+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
+                                        <p>{{$lims_product_list[0+$i*5]->name}}</p>
+                                        <span>{{$lims_product_list[0+$i*5]->code}}</span>
+                                    </td>
+                                    @if(!empty($lims_product_list[1+$i*5]))
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[1+$i*5]->name}}" data-product ="{{$lims_product_list[1+$i*5]->code . ' (' . $lims_product_list[1+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
+                                        <p>{{$lims_product_list[1+$i*5]->name}}</p>
+                                        <span>{{$lims_product_list[1+$i*5]->code}}</span>
+                                    </td>
+                                    @else
+                                    <td style="border:none;"></td>
+                                    @endif
+                                    @if(!empty($lims_product_list[2+$i*5]))
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[2+$i*5]->name}}" data-product ="{{$lims_product_list[2+$i*5]->code . ' (' . $lims_product_list[2+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
+                                        <p>{{$lims_product_list[2+$i*5]->name}}</p>
+                                        <span>{{$lims_product_list[2+$i*5]->code}}</span>
+                                    </td>
+                                    @else
+                                    <td style="border:none;"></td>
+                                    @endif
+                                    @if(!empty($lims_product_list[3+$i*5]))
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[3+$i*5]->name}}" data-product ="{{$lims_product_list[3+$i*5]->code . ' (' . $lims_product_list[3+$i*5]->name . ')'}}"><img  src="{{$lims_product_list[0+$i*5]->base_image}}" width="100%" />
+                                        <p>{{$lims_product_list[3+$i*5]->name}}</p>
+                                        <span>{{$lims_product_list[3+$i*5]->code}}</span>
+                                    </td>
+                                    @else
+                                    <td style="border:none;"></td>
+                                    @endif
+                                    @if(!empty($lims_product_list[4+$i*5]))
+                                    <td class="product-img sound-btn" title="{{$lims_product_list[4+$i*5]->name}}" data-product ="{{$lims_product_list[4+$i*5]->code . ' (' . $lims_product_list[4+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[4+$i*5]->base_image)}}" width="100%" />
+                                        <p>{{$lims_product_list[4+$i*5]->name}}</p>
+                                        <span>{{$lims_product_list[4+$i*5]->code}}</span>
+                                    </td>
+                                    @else
+                                    <td style="border:none;"></td>
+                                    @endif
+                                </tr>
+                            @endfor
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- order_tax modal -->
-        <div id="order-tax" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-                <div class="modal-content">
+            <!-- product edit modal -->
+            <div id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="modal_header" class="modal-title"></h5>
+                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label>{{trans('file.Quantity')}}</label>
+                                    <input type="text" name="edit_qty" class="form-control numkey">
+                                </div>
+                                <div class="form-group">
+                                    <label>{{trans('file.Unit Discount')}}</label>
+                                    <input type="text" name="edit_discount" class="form-control numkey">
+                                </div>
+                                <div class="form-group">
+                                    <label>{{trans('file.Unit Price')}}</label>
+                                    <input type="text" name="edit_unit_price" class="form-control numkey" step="any">
+                                </div>
+                                <?php
+                        $tax_name_all[] = 'No Tax';
+                        $tax_rate_all[] = 0;
+                        foreach($lims_tax_list as $tax) {
+                            $tax_name_all[] = $tax->name;
+                            $tax_rate_all[] = $tax->rate;
+                        }
+                    ?>
+                                    <div class="form-group">
+                                        <label>{{trans('file.Tax Rate')}}</label>
+                                        <select name="edit_tax_rate" class="form-control selectpicker">
+                                            @foreach($tax_name_all as $key => $name)
+                                            <option value="{{$key}}">{{$name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div id="edit_unit" class="form-group">
+                                        <label>{{trans('file.Product Unit')}}</label>
+                                        <select name="edit_unit" class="form-control selectpicker">
+                                        </select>
+                                    </div>
+                                    <button type="button" name="update_btn" class="btn btn-primary">{{trans('file.update')}}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- add customer modal -->
+            <div id="addCustomer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                <div role="document" class="modal-dialog">
+                  <div class="modal-content">
+                    {!! Form::open(['route' => 'customer.store', 'method' => 'post', 'files' => true]) !!}
                     <div class="modal-header">
-                        <h5 class="modal-title">{{trans('file.Order Tax')}}</h5>
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
+                      <h5 id="exampleModalLabel" class="modal-title">{{trans('file.Add Customer')}}</h5>
+                      <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
                     </div>
                     <div class="modal-body">
+                      <p class="italic"><small>{{trans('file.The field labels marked with * are required input fields')}}.</small></p>
                         <div class="form-group">
-                            <input type="hidden" name="order_tax_rate_hidden" value="{{$lims_sale_data->order_tax_rate}}">
-                            <select class="form-control" name="order_tax_rate">
-                                <option value="0">No Tax</option>
-                                @foreach($lims_tax_list as $tax)
-                                <option value="{{$tax->rate}}">{{$tax->name}}</option>
+                            <label>{{trans('file.Customer Group')}} *</strong> </label>
+                            <select required class="form-control selectpicker" name="customer_group_id">
+                                @foreach($lims_customer_group_all as $customer_group)
+                                    <option value="{{$customer_group->id}}">{{$customer_group->name}}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <button type="button" name="order_tax_btn" class="btn btn-primary" data-dismiss="modal">{{trans('file.submit')}}</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- shipping_cost modal -->
-        <div id="shipping-cost-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{trans('file.Shipping Cost')}}</h5>
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
-                    </div>
-                    <div class="modal-body">
                         <div class="form-group">
-                            <input type="text" name="shipping_cost" class="form-control numkey" value="{{number_format((float)($lims_sale_data->shipping_cost), 2, '.', '')}}" step="any">
+                            <label>{{trans('file.name')}} *</strong> </label>
+                            <input type="text" name="name" required class="form-control">
                         </div>
-                        <button type="button" name="shipping_cost_btn" class="btn btn-primary" data-dismiss="modal">{{trans('file.submit')}}</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- payment modal -->
-        <div id="add-payment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 id="exampleModalLabel" class="modal-title">{{trans('file.Finalize Sale')}}</h5>
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-10">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label>{{trans('file.Recieved Amount')}} *</label>
-                                        <input type="text" name="paying_amount" class="form-control numkey"  step="any">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label>{{trans('file.Paying Amount')}} *</label>
-                                        <input type="text" name="paid_amount" class="form-control numkey"  step="any">
-                                    </div>
-                                    <div class="col-md-6 mt-1">
-                                        <label>{{trans('file.Change')}} : </label>
-                                        <p id="change" class="ml-2">0.00</p>
-                                    </div>
-                                    <div class="col-md-6 mt-1">
-                                        <label>{{trans('file.Paid By')}}</label>
-                                        <select name="paid_by_id" class="form-control">
-                                            <option value="1">Cash</option>
-                                            <option value="2">Gift Card</option>
-                                            <option value="3">Credit Card</option>
-                                            <option value="4">Cheque</option>
-                                            <option value="5">Paypal</option>
-                                            <option value="6">Deposit</option>
-                                        </select>
-                                    </div>
-                                    <!-- <div class="form-group col-md-12 mt-3">
-                                        <div class="card-element form-control">
-                                        </div>
-                                        <div class="card-errors" role="alert"></div>
-                                    </div> -->
-                                    <div class="form-group col-md-12" id="gift-card">
-                                        <label> {{trans('file.Gift Card')}} *</label>
-                                        <input type="hidden" name="gift_card_id">
-                                        <select id="gift_card_id_select" name="gift_card_id_select" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Gift Card..."></select>
-                                    </div>
-                                    <div class="form-group col-md-12" id="cheque">
-                                        <div class="form-group">
-                                            <label>{{trans('file.Cheque Number')}} *</label>
-                                            <input type="text" name="cheque_no" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-12">
-                                        <label>{{trans('file.Payment Note')}}</label>
-                                        <textarea id="payment_note" rows="2" class="form-control" name="payment_note"></textarea>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                   <div class="col-md-6 form-group">
-                                        <label>{{trans('file.Sale Note')}}</label>
-                                        <textarea rows="3" class="form-control" name="sale_note"></textarea>
-                                    </div>
-                                    <div class="col-md-6 form-group">
-                                        <label>{{trans('file.Staff Note')}}</label>
-                                        <textarea rows="3" class="form-control" name="staff_note"></textarea>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <button id="submit-btn" type="submit" class="btn btn-primary">{{trans('file.submit')}}</button>
-                                </div>
-                            </div>
-                            <div class="col-md-2 qc" data-initial="1">
-                                <h4><strong>{{trans('file.Quick Cash')}}</strong></h4>
-                                <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="10" type="button">10</button>
-                                <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="20" type="button">20</button>
-                                <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="50" type="button">50</button>
-                                <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="100" type="button">100</button>
-                                <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="500" type="button">500</button>
-                                <button class="btn btn-block btn-primary qc-btn sound-btn" data-amount="1000" type="button">1000</button>
-                                <button class="btn btn-block btn-danger qc-btn sound-btn" data-amount="0" type="button">{{trans('file.Clear')}}</button>
-                            </div>
+                        <div class="form-group">
+                            <label>{{trans('file.Email')}}</label>
+                            <input type="text" name="email" placeholder="example@example.com" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>{{trans('file.Phone Number')}} *</label>
+                            <input type="text" name="phone_number" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>{{trans('file.Address')}}</label>
+                            <input type="text" name="address" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>{{trans('file.City')}}</label>
+                            <input type="text" name="city" class="form-control">
+                        </div>
+                        <div class="form-group">
+                        <input type="hidden" name="pos" value="1">      
+                          <input type="submit" value="{{trans('file.submit')}}" class="btn btn-primary">
                         </div>
                     </div>
+                    {{ Form::close() }}
+                  </div>
                 </div>
-            </div>
-        </div>
-        {!! Form::close() !!}
-        <!-- product list -->
-        <div class="col-md-5">
-            <div class="filter-window">
-                <div class="category mt-3">
-                    <div class="row ml-2">
-                        @foreach($lims_category_list as $category)
-                        <div class="col-md-3 category-img" data-category="{{$category->id}}">
-                            <img  src="{{url('images/product/zummXD2dvAtI.png')}}" />
-                            <p class="text-center">{{$category->name}}</p>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                <div class="brand mt-3">
-                    <div class="row ml-2">
-                        @foreach($lims_brand_list as $brand)
-                        @if($brand->image)
-                            <div class="col-md-3 brand-img" data-brand="{{$brand->id}}">
-                                <img  src="{{url('images/brand',$brand->image)}}" />
-                                <p class="text-center">{{$brand->title}}</p>
-                            </div>
-                        @else
-                            <div class="col-md-3 brand-img" data-brand="{{$brand->id}}">
-                                <img  src="{{url('images/product/zummXD2dvAtI.png')}}" />
-                                <p class="text-center">{{$brand->title}}</p>
-                            </div>
-                        @endif
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        	<div class="card">
-        		<div class="card-body">
-        			<div class="row">
-                        <div class="col-md-4">
-                            <button class="btn btn-block btn-primary" id="category-filter">{{trans('file.category')}}</button>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-block btn-info" id="brand-filter">{{trans('file.Brand')}}</button>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-block btn-danger" id="featured-filter">{{trans('file.Featured')}}</button>
-                        </div>
-                        <div class="col-md-12 mt-1 table-container">
-                            <table id="product-table" class="table product-list">
-                                <thead class="d-none">
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @for ($i=0; $i < ceil($product_number/5); $i++)
-                                    <tr>
-                                        <td class="product-img sound-btn" title="{{$lims_product_list[0+$i*5]->name}}" data-product ="{{$lims_product_list[0+$i*5]->code . ' (' . $lims_product_list[0+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[0+$i*5]->base_image)}}" width="100%" />
-                                            <p>{{$lims_product_list[0+$i*5]->name}}</p>
-                                        </td>
-                                        @if(!empty($lims_product_list[1+$i*5]))
-                                        <td class="product-img sound-btn" title="{{$lims_product_list[1+$i*5]->name}}" data-product ="{{$lims_product_list[1+$i*5]->code . ' (' . $lims_product_list[1+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[1+$i*5]->base_image)}}" width="100%" />
-                                            <p>{{$lims_product_list[1+$i*5]->name}}</p>
-                                        </td>
-                                        @else
-                                        <td></td>
-                                        @endif
-                                        @if(!empty($lims_product_list[2+$i*5]))
-                                        <td class="product-img sound-btn" title="{{$lims_product_list[2+$i*5]->name}}" data-product ="{{$lims_product_list[2+$i*5]->code . ' (' . $lims_product_list[2+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[2+$i*5]->base_image)}}" width="100%" />
-                                            <p>{{$lims_product_list[2+$i*5]->name}}</p>
-                                        </td>
-                                        @else
-                                        <td></td>
-                                        @endif
-                                        @if(!empty($lims_product_list[3+$i*5]))
-                                        <td class="product-img sound-btn" title="{{$lims_product_list[3+$i*5]->name}}" data-product ="{{$lims_product_list[3+$i*5]->code . ' (' . $lims_product_list[3+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[3+$i*5]->base_image)}}" width="100%" />
-                                            <p>{{$lims_product_list[3+$i*5]->name}}</p>
-                                        </td>
-                                        @else
-                                        <td></td>
-                                        @endif
-                                        @if(!empty($lims_product_list[4+$i*5]))
-                                        <td class="product-img sound-btn" title="{{$lims_product_list[4+$i*5]->name}}" data-product ="{{$lims_product_list[4+$i*5]->code . ' (' . $lims_product_list[4+$i*5]->name . ')'}}"><img  src="{{url('images/product',$lims_product_list[4+$i*5]->base_image)}}" width="100%" />
-                                            <p>{{$lims_product_list[4+$i*5]->name}}</p>
-                                        </td>
-                                        @else
-                                        <td></td>
-                                        @endif
-                                    </tr>
-                                @endfor
-                                </tbody>
-                            </table>
-                        </div>
-	            	</div>
-        		</div>
-        	</div>
-        </div>
-        <!-- product edit modal -->
-        <div id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 id="modal_header" class="modal-title"></h5>
-                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
-                    </div>
-                    <div class="modal-body">
-                        <form>
-                            <div class="form-group">
-                                <label>{{trans('file.Quantity')}}</label>
-                                <input type="text" name="edit_qty" class="form-control numkey">
-                            </div>
-                            <div class="form-group">
-                                <label>{{trans('file.Unit Discount')}}</label>
-                                <input type="text" name="edit_discount" class="form-control numkey">
-                            </div>
-                            <div class="form-group">
-                                <label>{{trans('file.Unit Price')}}</label>
-                                <input type="text" name="edit_unit_price" class="form-control numkey" step="any">
-                            </div>
-                            <?php
-                    $tax_name_all[] = 'No Tax';
-                    $tax_rate_all[] = 0;
-                    foreach($lims_tax_list as $tax) {
-                        $tax_name_all[] = $tax->name;
-                        $tax_rate_all[] = $tax->rate;
-                    }
-                ?>
-                                <div class="form-group">
-                                    <label>{{trans('file.Tax Rate')}}</label>
-                                    <select name="edit_tax_rate" class="form-control selectpicker">
-                                        @foreach($tax_name_all as $key => $name)
-                                        <option value="{{$key}}">{{$name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div id="edit_unit" class="form-group">
-                                    <label>{{trans('file.Product Unit')}}</label>
-                                    <select name="edit_unit" class="form-control selectpicker">
-                                    </select>
-                                </div>
-                                <button type="button" name="update_btn" class="btn btn-primary">{{trans('file.update')}}</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- add customer modal -->
-        <div id="addCustomer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-            <div role="document" class="modal-dialog">
-              <div class="modal-content">
-                {!! Form::open(['route' => 'customer.store', 'method' => 'post', 'files' => true]) !!}
-                <div class="modal-header">
-                  <h5 id="exampleModalLabel" class="modal-title">{{trans('file.Add Customer')}}</h5>
-                  <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true"><i class="dripicons-cross"></i></span></button>
-                </div>
-                <div class="modal-body">
-                  <p class="italic"><small>{{trans('file.The field labels marked with * are required input fields')}}.</small></p>
-                    <div class="form-group">
-                        <label>{{trans('file.Customer Group')}} *</strong> </label>
-                        <select required class="form-control selectpicker" name="customer_group_id">
-                            @foreach($lims_customer_group_all as $customer_group)
-                                <option value="{{$customer_group->id}}">{{$customer_group->name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>{{trans('file.name')}} *</strong> </label>
-                        <input type="text" name="name" required class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>{{trans('file.Email')}}</label>
-                        <input type="text" name="email" placeholder="example@example.com" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>{{trans('file.Phone Number')}} *</label>
-                        <input type="text" name="phone_number" required class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>{{trans('file.Address')}} *</label>
-                        <input type="text" name="address" required class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>{{trans('file.City')}} *</label>
-                        <input type="text" name="city" required class="form-control">
-                    </div>
-                    <div class="form-group">
-                    <input type="hidden" name="pos" value="1">      
-                      <input type="submit" value="{{trans('file.submit')}}" class="btn btn-primary">
-                    </div>
-                </div>
-                {{ Form::close() }}
-              </div>
             </div>
         </div>
     </div>
@@ -825,6 +993,7 @@ $.get('../getcustomergroup/' + id, function(data) {
 
 var id = $('select[name="warehouse_id"]').val();
 $.get('../getproduct/' + id, function(data) {
+    console.log(data);
     lims_product_array = [];
     product_code = data[0];
     product_name = data[1];

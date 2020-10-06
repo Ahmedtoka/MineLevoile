@@ -113,13 +113,29 @@
                         $variant_data = \App\Variant::find($product_sale_data->variant_id);
                         $product_name = $lims_product_data->name.' ['.$lims_product_data->code . '-' . $variant_data->name.']';
                     }
-                    else
+                    else{
                         $product_name = $lims_product_data->name . ' ['.$lims_product_data->code.'] ';
+                    }
+
+                    $todayDate = date('Y-m-d');
+                    if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date){
+                        $old_price = $lims_product_data->price;
+                    }
                 @endphp
-                <tr><td colspan="2">{{$product_name}}<br>{{$product_sale_data->qty}} x {{number_format((float)($product_sale_data->total / $product_sale_data->qty), 2, '.', '')}}
+                <tr><td colspan="2">{{$product_name}}<br>
+                    @if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date)
+                        <del>{{$product_sale_data->qty}} x {{number_format((float)($old_price), 2, '.', '')}}</del><br> 
+                    @endif
+                    
+                    {{$product_sale_data->qty}} x {{number_format((float)($product_sale_data->total / $product_sale_data->qty), 2, '.', '')}}
                     <br>
                 </td>
-                    <td style="text-align:right;vertical-align:bottom">{{number_format((float)$product_sale_data->total, 2, '.', '')}}</td>
+                    <td style="text-align:right;vertical-align:bottom">
+                        @if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date)
+                            <del>{{number_format((float)$old_price * $product_sale_data->qty, 2, '.', '')}}</del><br>
+                        @endif
+
+                        {{number_format((float)$product_sale_data->total, 2, '.', '')}}</td>
                 </tr>
                 @endforeach
             </tbody>

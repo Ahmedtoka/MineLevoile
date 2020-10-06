@@ -80,5 +80,7 @@
     $('form').on('submit', function() {
           $('button[type="submit"]').unbind('click');
           $('button[type="submit"]').remove();
+          $('input[type="submit"]').unbind('click');
+          $('input[type="submit"]').remove();
       });
 </script>

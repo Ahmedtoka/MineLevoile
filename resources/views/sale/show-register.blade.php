@@ -107,15 +107,6 @@
 					            </tr>
 					            <tr class="success">
 					              <th>
-					                (مجموع الدرج (كاش + فيزا
-
-					              </th>
-					              <td>
-					                <b><span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_sale + $register_details->open_amount - $register_details->total_expense}}</span></b>
-					              </td>
-					            </tr>
-					            <tr class="success">
-					              <th>
 					              	عدد شيكات الفيزا
 					              </th>
 					              <td>
