@@ -16,7 +16,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header d-flex align-items-center">
-                        <h4>{{trans('file.Close Day')}} - {{$register->id}}</h4>
+                        <h4>{{trans('file.Close Day')}} - {{$register->id}} - {{$register->branch->name}} - {{$register->created_at}}</h4>
                     </div>
                     @if($register->register_close_amount)
                     <div class="card-body" id="closeRegister">

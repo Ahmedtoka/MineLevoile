@@ -608,7 +608,7 @@ class SaleController extends Controller
             if (!empty($payment)) {
                 $register->cash_register_transactions()->save($payment);
             }
-            return redirect('sales/gen_invoice/' . $lims_sale_data->id)->with('message', $message);
+            return redirect(route('sale.invoice', ['id' => $lims_sale_data->id]))->with(['message' => $message, 'view' => true]);
         }elseif($data['pos']) {
             return redirect('pos')->with('message', $message);
         }else{
@@ -1589,8 +1589,13 @@ class SaleController extends Controller
     }
 
     public function genInvoice($id)
-    {
+    {   
         $lims_sale_data = Sale::find($id);
+        
+        if(auth()->user()->warehouse_id != $lims_sale_data->warehouse_id) {
+            return back();
+        }
+
         $lims_product_sale_data = Product_Sale::where('sale_id', $id)->get();
         $lims_biller_data = Biller::find($lims_sale_data->biller_id);
         $lims_warehouse_data = Warehouse::find($lims_sale_data->warehouse_id);
@@ -1603,6 +1608,7 @@ class SaleController extends Controller
         else
             $numberTransformer = $numberToWords->getNumberTransformer(\App::getLocale());
         $numberInWords = $numberTransformer->toWords($lims_sale_data->grand_total);
+
 
         return view('sale.invoice', compact('lims_sale_data', 'lims_product_sale_data', 'lims_biller_data', 'lims_warehouse_data', 'lims_customer_data', 'lims_payment_data', 'numberInWords'));
     }
@@ -1640,7 +1646,7 @@ class SaleController extends Controller
         $lims_payment_data->user_id = Auth::id();
         $lims_payment_data->sale_id = $lims_sale_data->id;
         $lims_payment_data->account_id = $data['account_id'];
-        $data['payment_reference'] = 'spr-' . date("Ymd") . '-'. date("his");
+        $data['payment_reference'] = 'spr-' . date("Ymd") . '-'. date("his") . '-'. $lims_sale_data->id;
         $lims_payment_data->payment_reference = $data['payment_reference'];
         $lims_payment_data->amount = $data['amount'];
         $lims_payment_data->change = $data['paying_amount'] - $data['amount'];

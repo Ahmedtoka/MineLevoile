@@ -579,7 +579,7 @@ class SaleController extends Controller
             }
         }
         if($lims_sale_data->sale_status == '1')
-            return redirect('sales/gen_invoice/' . $lims_sale_data->id)->with('message', $message);
+            return redirect(route('sale.invoice', ['id' => $lims_sale_data->id]))->with('message', $message, 'view', true);
         elseif($data['pos'])
             return redirect('pos')->with('message', $message);
         else
@@ -1552,7 +1552,7 @@ class SaleController extends Controller
         $lims_payment_data->user_id = Auth::id();
         $lims_payment_data->sale_id = $lims_sale_data->id;
         $lims_payment_data->account_id = $data['account_id'];
-        $data['payment_reference'] = 'spr-' . date("Ymd") . '-'. date("his");
+        $data['payment_reference'] = 'spr-' . date("Ymd") . '-'. date("his") . '-'. $lims_sale_data->id;
         $lims_payment_data->payment_reference = $data['payment_reference'];
         $lims_payment_data->amount = $data['amount'];
         $lims_payment_data->change = $data['paying_amount'] - $data['amount'];

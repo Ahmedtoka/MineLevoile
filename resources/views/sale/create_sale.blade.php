@@ -1949,7 +1949,8 @@ function confirmCancel() {
     var audio = $("#mysoundclip2")[0];
     audio.play();
     if (confirm("Are you sure want to cancel?")){
-        cancel($('table.order-list tbody tr:last').index());
+        //cancel($('table.order-list tbody tr:last').index());
+        location.replace('{{route("sale.pos")}}');
     }
     return false;
 }

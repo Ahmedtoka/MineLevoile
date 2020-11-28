@@ -81,17 +81,21 @@
         <table>
             <tr>
                 <td><a href="{{$url}}" class="btn btn-info"><i class="fa fa-arrow-left"></i> {{trans('file.Back')}}</a> </td>
-                <td><button onclick="window.print();" class="btn btn-primary"><i class="dripicons-print"></i> {{trans('file.Print')}}</button></td>
+                <!-- <td><button onclick="window.print();" class="btn btn-primary"><i class="dripicons-print"></i> {{trans('file.Print')}}</button></td> -->
             </tr>
         </table>
         <br>
     </div>
         
-    <div id="receipt-data">
+    <div id="receipt-data" @if(session('view') == false) style="background: url({{asset("images/copy-watermark.png")}}); background-size: contain;-webkit-print-color-adjust: exact;" @endif>
         <div class="centered">
             <img src="https://www.levoilescarfs.com/wp-content/uploads/2020/10/logo.png" width="85%">
             <h2>Branch: {{$lims_biller_data->company_name}}</h2>
-            
+                @if(session('view') == false)
+                
+                <h1 >THIS IS A COPY OF INVOICE AND CAN'T REUSE IT</h1>
+
+                @endif
         </div>
         <p>{{trans('file.Date')}}: {{$lims_sale_data->created_at}}<br>
             {{trans('file.reference')}}: {{$lims_sale_data->reference_no}}<br>
@@ -109,6 +113,7 @@
                 @foreach($lims_product_sale_data as $product_sale_data)
                 @php 
                     $lims_product_data = \App\Product::find($product_sale_data->product_id);
+
                     if($product_sale_data->variant_id != null) {
                         $variant_data = \App\Variant::find($product_sale_data->variant_id);
                         $product_name = $lims_product_data->name.' ['.$lims_product_data->code . '-' . $variant_data->name.']';
@@ -121,6 +126,9 @@
                     if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date){
                         $old_price = $lims_product_data->price;
                     }
+
+                    $product_discount = $product_sale_data->discount;
+
                 @endphp
                 <tr><td colspan="2">{{$product_name}}<br>
                     @if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date)
@@ -129,6 +137,9 @@
                     
                     {{$product_sale_data->qty}} x {{number_format((float)($product_sale_data->total / $product_sale_data->qty), 2, '.', '')}}
                     <br>
+                    @if($product_discount > 0)
+                        {{trans('file.Discount')}}: {{number_format((float)($product_discount), 2, '.', '')}}
+                    @endif
                 </td>
                     <td style="text-align:right;vertical-align:bottom">
                         @if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date)
@@ -153,7 +164,7 @@
                 @endif
                 @if($lims_sale_data->order_discount)
                 <tr>
-                    <th colspan="2">{{trans('file.Order Discount')}}</th>
+                    <th colspan="2">{{trans('file.Order Discount')}}</th>   
                     <th style="text-align:right">{{number_format((float)$lims_sale_data->order_discount, 2, '.', '')}}</th>
                 </tr>
                 @endif
@@ -203,10 +214,15 @@
 </div>
 
 <script type="text/javascript">
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
     function auto_print() {     
-        window.print()
+        window.print();
+
+        window.location.href = '{{route("sale.pos")}}';
     }
     setTimeout(auto_print, 1000);
+
 </script>
 
 </body>

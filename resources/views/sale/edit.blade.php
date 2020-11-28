@@ -338,12 +338,12 @@
             <td><strong>{{trans('file.Order Tax')}}</strong>
                 <span class="pull-right" id="order_tax">0.00</span>
             </td>
-            <td><strong>{{trans('file.Order Discount')}}</strong>
+            {{-- <td><strong>{{trans('file.Order Discount')}}</strong>
                 <span class="pull-right" id="order_discount">0.00</span>
             </td>
             <td><strong>{{trans('file.Shipping Cost')}}</strong>
                 <span class="pull-right" id="shipping_cost">0.00</span>
-            </td>
+            </td> --}}
             <td><strong>{{trans('file.grand total')}}</strong>
                 <span class="pull-right" id="grand_total">0.00</span>
             </td>

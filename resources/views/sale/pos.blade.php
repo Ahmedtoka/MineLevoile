@@ -137,7 +137,7 @@
             @if($coupon_permission_active)
             <li id="coupon-menu"><a href="{{route('coupons.index')}}">{{trans('file.Coupon List')}}</a> </li>
             @endif
-            <li id="delivery-menu"><a href="{{route('delivery.index')}}">{{trans('file.Delivery List')}}</a></li>
+            {{-- <li id="delivery-menu"><a href="{{route('delivery.index')}}">{{trans('file.Delivery List')}}</a></li> --}}
           </ul>
         </li>
         <?php 
@@ -803,18 +803,18 @@
                                         <div class="col-sm-4">
                                             <span class="totals-title">{{trans('file.Total')}}</span><span id="subtotal">0.00</span>
                                         </div>
-                                        <div class="col-sm-4">
+                                        {{-- <div class="col-sm-4">
                                             <span class="totals-title">{{trans('file.Discount')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#order-discount"> <i class="dripicons-document-edit"></i></button></span><span id="discount">0.00</span>
-                                        </div>
+                                        </div> --}}
                                         <div class="col-sm-4">
                                             <span class="totals-title">{{trans('file.Coupon')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#coupon-modal"><i class="dripicons-document-edit"></i></button></span><span id="coupon-text">0.00</span>
                                         </div>
-                                        <div class="col-sm-4">
+                                        {{-- <div class="col-sm-4">
                                             <span class="totals-title">{{trans('file.Tax')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#order-tax"><i class="dripicons-document-edit"></i></button></span><span id="tax">0.00</span>
                                         </div>
                                         <div class="col-sm-4">
                                             <span class="totals-title">{{trans('file.Shipping')}} <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#shipping-cost-modal"><i class="dripicons-document-edit"></i></button></span><span id="shipping-cost">0.00</span>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             </div>
@@ -861,9 +861,9 @@
                                             <label>{{trans('file.Recieved Amount')}} *</label>
                                             <input type="text" name="paying_amount" class="form-control numkey" required step="any">
                                         </div>
-                                        <div class="col-md-6 mt-1">
+                                        <div class="col-md-6 mt-1" style="display: none;">
                                             <label>{{trans('file.Paying Amount')}} *</label>
-                                            <input type="text" name="paid_amount" class="form-control numkey"  step="any">
+                                            <input type="hidden" name="paid_amount" class="form-control numkey"  step="any">
                                         </div>
                                         <div class="col-md-6 mt-1">
                                             <label>{{trans('file.Change')}} : </label>
@@ -922,7 +922,7 @@
                 </div>
             </div>
             <!-- order_discount modal -->
-            <div id="order-discount" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+            {{-- <div id="order-discount" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
                 <div role="document" class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -937,7 +937,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <!-- coupon modal -->
             <div id="coupon-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
                 <div role="document" class="modal-dialog">
@@ -1223,7 +1223,7 @@
                             $tax_rate_all[] = $tax->rate;
                         }
                     ?>
-                                    <div class="form-group">
+                                    <div class="form-group" style="display: none;">
                                         <label>{{trans('file.Tax Rate')}}</label>
                                         <select name="edit_tax_rate" class="form-control selectpicker">
                                             @foreach($tax_name_all as $key => $name)
@@ -1231,7 +1231,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div id="edit_unit" class="form-group">
+                                    <div id="edit_unit" class="form-group" style="display: none!important;">
                                         <label>{{trans('file.Product Unit')}}</label>
                                         <select name="edit_unit" class="form-control selectpicker">
                                         </select>

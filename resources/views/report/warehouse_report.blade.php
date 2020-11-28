@@ -83,7 +83,6 @@
                             <th>{{trans('file.reference')}} No</th>
                             <th>{{trans('file.customer')}}</th>
                             <th>{{trans('file.product')}}</th>
-                            <th>{{trans('file.qty')}}</th>
                             <th>{{trans('file.grand total')}}</th>
                             <th>{{trans('file.Paid')}}</th>
                             <th>{{trans('file.Due')}}</th>
@@ -116,15 +115,16 @@
                                     }
                                 ?>
                                 {{$product->name}}
-                                @endforeach
-                            </td>
-                            <td>
+                                <br>
                                 <?php $unit = App\Unit::find($product_sale_data->sale_unit_id); ?>
                                 @if($unit)
-                                    {{$product_sale_data->qty.' '.$unit->unit_code}}
+                                    Qty: {{$product_sale_data->qty.' '.$unit->unit_code}}
                                 @else
-                                    {{$product_sale_data->qty}}
+                                    Qty: {{$product_sale_data->qty}}
                                 @endif
+                                <br>
+                                <hr>
+                                @endforeach
                             </td>
                             <td>{{$sale->grand_total}}</td>
                             <td>{{$sale->paid_amount}}</td>
@@ -366,362 +366,362 @@
     $('#warehouse_id').val($('input[name="warehouse_id_hidden"]').val());
     $('.selectpicker').selectpicker('refresh');
 
-    $('#sale-table').DataTable( {
-        "order": [],
-        'columnDefs': [
-            {
-                "orderable": false,
-                'targets': 0
-            },
-            {
-                'render': function(data, type, row, meta){
-                    if(type === 'display'){
-                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                    }
+    // $('#sale-table').DataTable( {
+    //     "order": [],
+    //     'columnDefs': [
+    //         {
+    //             "orderable": false,
+    //             'targets': 0
+    //         },
+    //         {
+    //             'render': function(data, type, row, meta){
+    //                 if(type === 'display'){
+    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+    //                 }
 
-                   return data;
-                },
-                'checkboxes': {
-                   'selectRow': true,
-                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                },
-                'targets': [0]
-            }
-        ],
-        'select': { style: 'multi',  selector: 'td:first-child'},
-        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        dom: '<"row"lfB>rtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-sale)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_sale(dt, true);
-                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_sale(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'csv',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-sale)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_sale(dt, true);
-                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_sale(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'print',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-sale)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_sale(dt, true);
-                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                    datatable_sum_sale(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'colvis',
-                columns: ':gt(0)'
-            }
-        ],
-        drawCallback: function () {
-            var api = this.api();
-            datatable_sum_sale(api, false);
-        }
-    } );
+    //                return data;
+    //             },
+    //             'checkboxes': {
+    //                'selectRow': true,
+    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+    //             },
+    //             'targets': [0]
+    //         }
+    //     ],
+    //     'select': { style: 'multi',  selector: 'td:first-child'},
+    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
+    //     dom: '<"row"lfB>rtip',
+    //     buttons: [
+    //         {
+    //             extend: 'pdf',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-sale)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_sale(dt, true);
+    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_sale(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'csv',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-sale)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_sale(dt, true);
+    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_sale(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'print',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-sale)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_sale(dt, true);
+    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+    //                 datatable_sum_sale(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'colvis',
+    //             columns: ':gt(0)'
+    //         }
+    //     ],
+    //     drawCallback: function () {
+    //         var api = this.api();
+    //         datatable_sum_sale(api, false);
+    //     }
+    // } );
 
-    function datatable_sum_sale(dt_selector, is_calling_first) {
-        if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-            var rows = dt_selector.rows( '.selected' ).indexes();
+    // function datatable_sum_sale(dt_selector, is_calling_first) {
+    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
+    //         var rows = dt_selector.rows( '.selected' ).indexes();
 
-            $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-            $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-        }
-        else {
-            $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-            $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-        }
-    }
+    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
+    //     }
+    //     else {
+    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
+    //     }
+    // }
 
-    $('#purchase-table').DataTable( {
-        "order": [],
-        'columnDefs': [
-            {
-                "orderable": false,
-                'targets': 0
-            },
-            {
-                'render': function(data, type, row, meta){
-                    if(type === 'display'){
-                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                    }
+    // $('#purchase-table').DataTable( {
+    //     "order": [],
+    //     'columnDefs': [
+    //         {
+    //             "orderable": false,
+    //             'targets': 0
+    //         },
+    //         {
+    //             'render': function(data, type, row, meta){
+    //                 if(type === 'display'){
+    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+    //                 }
 
-                   return data;
-                },
-                'checkboxes': {
-                   'selectRow': true,
-                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                },
-                'targets': [0]
-            }
-        ],
-        'select': { style: 'multi',  selector: 'td:first-child'},
-        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        dom: '<"row"lfB>rtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-purchase)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_purchase(dt, true);
-                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_purchase(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'csv',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-purchase)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_purchase(dt, true);
-                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_purchase(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'print',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-purchase)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_purchase(dt, true);
-                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                    datatable_sum_purchase(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'colvis',
-                columns: ':gt(0)'
-            }
-        ],
-        drawCallback: function () {
-            var api = this.api();
-            datatable_sum_purchase(api, false);
-        }
-    } );
+    //                return data;
+    //             },
+    //             'checkboxes': {
+    //                'selectRow': true,
+    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+    //             },
+    //             'targets': [0]
+    //         }
+    //     ],
+    //     'select': { style: 'multi',  selector: 'td:first-child'},
+    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
+    //     dom: '<"row"lfB>rtip',
+    //     buttons: [
+    //         {
+    //             extend: 'pdf',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-purchase)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_purchase(dt, true);
+    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_purchase(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'csv',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-purchase)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_purchase(dt, true);
+    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_purchase(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'print',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-purchase)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_purchase(dt, true);
+    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+    //                 datatable_sum_purchase(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'colvis',
+    //             columns: ':gt(0)'
+    //         }
+    //     ],
+    //     drawCallback: function () {
+    //         var api = this.api();
+    //         datatable_sum_purchase(api, false);
+    //     }
+    // } );
 
-    function datatable_sum_purchase(dt_selector, is_calling_first) {
-        if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-            var rows = dt_selector.rows( '.selected' ).indexes();
+    // function datatable_sum_purchase(dt_selector, is_calling_first) {
+    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
+    //         var rows = dt_selector.rows( '.selected' ).indexes();
 
-            $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-            $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-        }
-        else {
-            $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-            $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-        }
-    }
+    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
+    //     }
+    //     else {
+    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
+    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
+    //     }
+    // }
 
 
-    $('#return-table').DataTable( {
-        "order": [],
-        'columnDefs': [
-            {
-                "orderable": false,
-                'targets': 0
-            },
-            {
-                'render': function(data, type, row, meta){
-                    if(type === 'display'){
-                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                    }
+    // $('#return-table').DataTable( {
+    //     "order": [],
+    //     'columnDefs': [
+    //         {
+    //             "orderable": false,
+    //             'targets': 0
+    //         },
+    //         {
+    //             'render': function(data, type, row, meta){
+    //                 if(type === 'display'){
+    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+    //                 }
 
-                   return data;
-                },
-                'checkboxes': {
-                   'selectRow': true,
-                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                },
-                'targets': [0]
-            }
-        ],
-        'select': { style: 'multi',  selector: 'td:first-child'},
-        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        dom: '<"row"lfB>rtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-return)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_return(dt, true);
-                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_return(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'csv',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_return(dt, true);
-                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_return(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'print',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_return(dt, true);
-                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                    datatable_sum_return(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'colvis',
-                columns: ':gt(0)'
-            }
-        ],
-        drawCallback: function () {
-            var api = this.api();
-            datatable_sum_return(api, false);
-        }
-    } );
+    //                return data;
+    //             },
+    //             'checkboxes': {
+    //                'selectRow': true,
+    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+    //             },
+    //             'targets': [0]
+    //         }
+    //     ],
+    //     'select': { style: 'multi',  selector: 'td:first-child'},
+    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
+    //     dom: '<"row"lfB>rtip',
+    //     buttons: [
+    //         {
+    //             extend: 'pdf',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-return)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_return(dt, true);
+    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_return(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'csv',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_return(dt, true);
+    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_return(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'print',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_return(dt, true);
+    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+    //                 datatable_sum_return(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'colvis',
+    //             columns: ':gt(0)'
+    //         }
+    //     ],
+    //     drawCallback: function () {
+    //         var api = this.api();
+    //         datatable_sum_return(api, false);
+    //     }
+    // } );
 
-    function datatable_sum_return(dt_selector, is_calling_first) {
-        if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-            var rows = dt_selector.rows( '.selected' ).indexes();
+    // function datatable_sum_return(dt_selector, is_calling_first) {
+    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
+    //         var rows = dt_selector.rows( '.selected' ).indexes();
 
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-        }
-        else {
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-        }
-    }
+    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
+    //     }
+    //     else {
+    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
+    //     }
+    // }
 
-    $('#expense-table').DataTable( {
-        "order": [],
-        'columnDefs': [
-            {
-                "orderable": false,
-                'targets': 0
-            },
-            {
-                'render': function(data, type, row, meta){
-                    if(type === 'display'){
-                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                    }
+    // $('#expense-table').DataTable( {
+    //     "order": [],
+    //     'columnDefs': [
+    //         {
+    //             "orderable": false,
+    //             'targets': 0
+    //         },
+    //         {
+    //             'render': function(data, type, row, meta){
+    //                 if(type === 'display'){
+    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+    //                 }
 
-                   return data;
-                },
-                'checkboxes': {
-                   'selectRow': true,
-                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                },
-                'targets': [0]
-            }
-        ],
-        'select': { style: 'multi',  selector: 'td:first-child'},
-        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        dom: '<"row"lfB>rtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported-expense)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_expense(dt, true);
-                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_expense(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'csv',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_expense(dt, true);
-                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-                    datatable_sum_expense(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'print',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-                action: function(e, dt, button, config) {
-                    datatable_sum_expense(dt, true);
-                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                    datatable_sum_expense(dt, false);
-                },
-                footer:true
-            },
-            {
-                extend: 'colvis',
-                columns: ':gt(0)'
-            }
-        ],
-        drawCallback: function () {
-            var api = this.api();
-            datatable_sum_expense(api, false);
-        }
-    } );
+    //                return data;
+    //             },
+    //             'checkboxes': {
+    //                'selectRow': true,
+    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+    //             },
+    //             'targets': [0]
+    //         }
+    //     ],
+    //     'select': { style: 'multi',  selector: 'td:first-child'},
+    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
+    //     dom: '<"row"lfB>rtip',
+    //     buttons: [
+    //         {
+    //             extend: 'pdf',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported-expense)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_expense(dt, true);
+    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_expense(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'csv',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_expense(dt, true);
+    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+    //                 datatable_sum_expense(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'print',
+    //             exportOptions: {
+    //                 columns: ':visible:Not(.not-exported)',
+    //                 rows: ':visible'
+    //             },
+    //             action: function(e, dt, button, config) {
+    //                 datatable_sum_expense(dt, true);
+    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+    //                 datatable_sum_expense(dt, false);
+    //             },
+    //             footer:true
+    //         },
+    //         {
+    //             extend: 'colvis',
+    //             columns: ':gt(0)'
+    //         }
+    //     ],
+    //     drawCallback: function () {
+    //         var api = this.api();
+    //         datatable_sum_expense(api, false);
+    //     }
+    // } );
 
-    function datatable_sum_expense(dt_selector, is_calling_first) {
-        if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-            var rows = dt_selector.rows( '.selected' ).indexes();
+    // function datatable_sum_expense(dt_selector, is_calling_first) {
+    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
+    //         var rows = dt_selector.rows( '.selected' ).indexes();
 
-            $( dt_selector.column( 4 ).footer() ).html(dt_selector.cells( rows, 4, { page: 'current' } ).data().sum().toFixed(2));
-        }
-        else {
-            $( dt_selector.column( 4 ).footer() ).html(dt_selector.column( 4, {page:'current'} ).data().sum().toFixed(2));
-        }
-    }
+    //         $( dt_selector.column( 4 ).footer() ).html(dt_selector.cells( rows, 4, { page: 'current' } ).data().sum().toFixed(2));
+    //     }
+    //     else {
+    //         $( dt_selector.column( 4 ).footer() ).html(dt_selector.column( 4, {page:'current'} ).data().sum().toFixed(2));
+    //     }
+    // }
 $(".daterangepicker-field").daterangepicker({
   callback: function(startDate, endDate, period){
     var start_date = startDate.format('YYYY-MM-DD');

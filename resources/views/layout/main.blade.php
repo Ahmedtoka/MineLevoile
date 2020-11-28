@@ -217,7 +217,7 @@
                   @if($coupon_permission_active)
                   <li id="coupon-menu"><a href="{{route('coupons.index')}}">{{trans('file.Coupon List')}}</a> </li>
                   @endif
-                  <li id="delivery-menu"><a href="{{route('delivery.index')}}">{{trans('file.Delivery List')}}</a></li>
+                  {{-- <li id="delivery-menu"><a href="{{route('delivery.index')}}">{{trans('file.Delivery List')}}</a></li> --}}
                 </ul>
               </li>
               <?php 
@@ -540,7 +540,7 @@
                   @if($product_report_active)
                   <li id="product-report-menu">
                     {!! Form::open(['route' => 'report.product', 'method' => 'post', 'id' => 'product-report-form']) !!}
-                    <input type="hidden" name="start_date" value="1988-04-18" />
+                    <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="warehouse_id" value="0" />
                     <a id="report-link" href="">{{trans('file.Product Report')}}</a>
@@ -570,7 +570,7 @@
                   @if($sale_report_active)
                   <li id="sale-report-menu">
                     {!! Form::open(['route' => 'report.sale', 'method' => 'post', 'id' => 'sale-report-form']) !!}
-                    <input type="hidden" name="start_date" value="1988-04-18" />
+                    <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="warehouse_id" value="0" />
                     <a id="sale-report-link" href="">{{trans('file.Sale Report')}}</a>
@@ -580,7 +580,7 @@
                   @if($payment_report_active)
                   <li id="payment-report-menu">
                     {!! Form::open(['route' => 'report.paymentByDate', 'method' => 'post', 'id' => 'payment-report-form']) !!}
-                    <input type="hidden" name="start_date" value="1988-04-18" />
+                    <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
                     <a id="payment-report-link" href="">{{trans('file.Payment Report')}}</a>
                     {!! Form::close() !!}
@@ -589,7 +589,7 @@
                   @if($purchase_report_active)
                   <li id="purchase-report-menu">
                     {!! Form::open(['route' => 'report.purchase', 'method' => 'post', 'id' => 'purchase-report-form']) !!}
-                    <input type="hidden" name="start_date" value="1988-04-18" />
+                    <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="warehouse_id" value="0" />
                     <a id="purchase-report-link" href="">{{trans('file.Purchase Report')}}</a>
@@ -629,7 +629,7 @@
                   @if($due_report_active)
                   <li id="due-report-menu">
                     {!! Form::open(['route' => 'report.dueByDate', 'method' => 'post', 'id' => 'due-report-form']) !!}
-                    <input type="hidden" name="start_date" value="1988-04-18" />
+                    <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
                     <a id="due-report-link" href="">{{trans('file.Due Report')}}</a>
                     {!! Form::close() !!}
@@ -1053,7 +1053,7 @@
                           </select>
                       </div>
 
-                      <input type="hidden" name="start_date" value="1988-04-18" />
+                      <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                       <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
 
                       <div class="form-group">
@@ -1088,7 +1088,7 @@
                           </select>
                       </div>
 
-                      <input type="hidden" name="start_date" value="1988-04-18" />
+                      <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                       <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
 
                       <div class="form-group">
@@ -1123,7 +1123,7 @@
                           </select>
                       </div>
 
-                      <input type="hidden" name="start_date" value="1988-04-18" />
+                      <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                       <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
 
                       <div class="form-group">
@@ -1158,7 +1158,7 @@
                           </select>
                       </div>
 
-                      <input type="hidden" name="start_date" value="1988-04-18" />
+                      <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                       <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
 
                       <div class="form-group">
