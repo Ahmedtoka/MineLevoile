@@ -78,7 +78,6 @@
                 <table id="sale-table" class="table table-hover">
                     <thead>
                         <tr>
-                            <th class="not-exported-sale"></th>
                             <th>{{trans('file.Date')}}</th>
                             <th>{{trans('file.reference')}} No</th>
                             <th>{{trans('file.customer')}}</th>
@@ -94,58 +93,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($lims_sale_data as $key=>$sale)
-                        <?php
-                            $payment = App\Payment::where('sale_id', $sale->id)->first();
-                            $payment_method = optional($payment)->paying_method;
-                            $payment_note = optional($payment)->payment_note;
-                        ?>
-                        <tr>
-                            <td>{{$key}}</td>
-                            <td>{{date($general_setting->date_format, strtotime($sale->created_at->toDateString())) . ' '. $sale->created_at->toTimeString()}}</td>
-                            <td>{{$sale->reference_no}}</td>
-                            <td>{{$sale->customer->name}}</td>
-                            <td>
-                                @foreach($lims_product_sale_data[$key] as $product_sale_data)
-                                <?php 
-                                    $product = App\Product::select('name')->find($product_sale_data->product_id);
-                                    if($product_sale_data->variant_id) {
-                                        $variant = App\Variant::find($product_sale_data->variant_id);
-                                        $product->name .= ' ['.$variant->name.']';
-                                    }
-                                ?>
-                                {{$product->name}}
-                                <br>
-                                <?php $unit = App\Unit::find($product_sale_data->sale_unit_id); ?>
-                                @if($unit)
-                                    Qty: {{$product_sale_data->qty.' '.$unit->unit_code}}
-                                @else
-                                    Qty: {{$product_sale_data->qty}}
-                                @endif
-                                <br>
-                                <hr>
-                                @endforeach
-                            </td>
-                            <td>{{$sale->grand_total}}</td>
-                            <td>{{$sale->paid_amount}}</td>
-                            <td>{{number_format((float)($sale->grand_total - $sale->paid_amount), 2, '.', '')}}</td>
-                            @if($sale->sale_status == 1)
-                            <td><div class="badge badge-success">{{trans('file.Completed')}}</div></td>
-                            @else
-                            <td><div class="badge badge-danger">{{trans('file.Pending')}}</div></td>
-                            @endif
-                            <td>
-                                <div class="badge badge-success">{{$payment_method}}</div>
-                            </td>
-                            <td>
-                                {{$sale->sale_note}}
-                            </td>
-                            <td>
-                                {{$sale->staff_note}}
-                            </td>
-                            <td>{{$payment_note}}</td>
-                        </tr>
-                        @endforeach
+                        
                     </tbody>
                     <tfoot class="tfoot active">
                         <tr>
@@ -158,8 +106,6 @@
                             <th>0.00</th>
                             <th>0.00</th>
                             <th>0.00</th>
-                            <th></th>
-                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -365,97 +311,123 @@
 
     $('#warehouse_id').val($('input[name="warehouse_id_hidden"]').val());
     $('.selectpicker').selectpicker('refresh');
+    var url = "{{route('report.warehouse.get')}}?type=sale&warehouse_id={{$warehouse_id}}";
+    $('#sale-table').DataTable( {
+        processing: true,
+        serverSide: true,
+        dom: 'Blfrtip',
+        scrollX:        true,
+        scrollCollapse: true,
+        ajax: {
+            url: url,
+            type: 'GET',
+            data: {
+                'csrf_token':$('meta[name=_token]').attr("content"),
+            }
+        },
+        columns: [
+            { data: 'created_at' },
+            { data: 'reference_no'},
+            { data: 'customer'},
+            { data: 'product'},
+            { data: 'total'},
+            { data: 'paid'},
+            { data: 'due'},
+            { data: 'status'},
+            { data: 'payment'},
+            { data: 'sale_note'},
+            { data: 'staff_note'},
+            { data: 'payment_note'},
+        ],
+        "order": [],
+        'columnDefs': [
+            {
+                "orderable": false,
+                'targets': 0
+            },
+            {
+                'render': function(data, type, row, meta){
+                    if(type === 'display'){
+                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+                    }
 
-    // $('#sale-table').DataTable( {
-    //     "order": [],
-    //     'columnDefs': [
-    //         {
-    //             "orderable": false,
-    //             'targets': 0
-    //         },
-    //         {
-    //             'render': function(data, type, row, meta){
-    //                 if(type === 'display'){
-    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-    //                 }
+                   return data;
+                },
+                'checkboxes': {
+                   'selectRow': true,
+                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+                },
+                'targets': [0]
+            }
+        ],
+        'select': { style: 'multi',  selector: 'td:first-child'},
+        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        //dom: '<"row"lfB>rtip',
+        buttons: [
+            {
+                extend: 'pdf',
+                exportOptions: {
+                    columns: ':visible:Not(.not-exported-sale)',
+                    rows: ':visible'
+                },
+                action: function(e, dt, button, config) {
+                    datatable_sum_sale(dt, true);
+                    $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                    datatable_sum_sale(dt, false);
+                },
+                footer:true
+            },
+            {
+                extend: 'csv',
+                exportOptions: {
+                    columns: ':visible:Not(.not-exported-sale)',
+                    rows: ':visible'
+                },
+                action: function(e, dt, button, config) {
+                    datatable_sum_sale(dt, true);
+                    $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                    datatable_sum_sale(dt, false);
+                },
+                footer:true
+            },
+            {
+                extend: 'print',
+                exportOptions: {
+                    columns: ':visible:Not(.not-exported-sale)',
+                    rows: ':visible'
+                },
+                action: function(e, dt, button, config) {
+                    datatable_sum_sale(dt, true);
+                    $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                    datatable_sum_sale(dt, false);
+                },
+                footer:true
+            },
+            {
+                extend: 'colvis',
+                columns: ':gt(0)'
+            }
+        ],
+        drawCallback: function () {
+            var api = this.api();
+            datatable_sum_sale(api, false);
+        }
+    } );
 
-    //                return data;
-    //             },
-    //             'checkboxes': {
-    //                'selectRow': true,
-    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-    //             },
-    //             'targets': [0]
-    //         }
-    //     ],
-    //     'select': { style: 'multi',  selector: 'td:first-child'},
-    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-    //     dom: '<"row"lfB>rtip',
-    //     buttons: [
-    //         {
-    //             extend: 'pdf',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-sale)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_sale(dt, true);
-    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_sale(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'csv',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-sale)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_sale(dt, true);
-    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_sale(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'print',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-sale)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_sale(dt, true);
-    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-    //                 datatable_sum_sale(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'colvis',
-    //             columns: ':gt(0)'
-    //         }
-    //     ],
-    //     drawCallback: function () {
-    //         var api = this.api();
-    //         datatable_sum_sale(api, false);
-    //     }
-    // } );
+    function datatable_sum_sale(dt_selector, is_calling_first) {
+        if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
+            var rows = dt_selector.rows( '.selected' ).indexes();
 
-    // function datatable_sum_sale(dt_selector, is_calling_first) {
-    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-    //         var rows = dt_selector.rows( '.selected' ).indexes();
-
-    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-    //     }
-    //     else {
-    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-    //     }
-    // }
+            $( dt_selector.column( 4 ).footer() ).html(dt_selector.cells( rows, 4, { page: 'current' } ).data().sum().toFixed(2));
+            $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
+            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
+        }
+        else {
+            $( dt_selector.column( 4 ).footer() ).html(dt_selector.column( 4, {page:'current'} ).data().sum().toFixed(2));
+            $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
+            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
+        }
+    }
 
     // $('#purchase-table').DataTable( {
     //     "order": [],

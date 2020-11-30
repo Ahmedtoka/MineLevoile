@@ -22,6 +22,7 @@ use App\Product_Warehouse;
 use App\Expense;
 use App\Payroll;
 use App\User;
+use App\Unit;
 use App\Customer;
 use App\Supplier;
 use App\Variant;
@@ -30,6 +31,7 @@ use DB;
 use Auth;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use DataTables;
 
 class ReportController extends Controller
 {
@@ -895,35 +897,167 @@ class ReportController extends Controller
         $warehouse_id = $data['warehouse_id'];
         $start_date = $data['start_date'];
         $end_date = $data['end_date'];
-
-        $lims_purchase_data = Purchase::where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-        $lims_sale_data = Sale::with('customer')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-        $lims_quotation_data = Quotation::with('customer')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-        $lims_return_data = Returns::with('customer', 'biller')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-        $lims_expense_data = Expense::with('expenseCategory')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+        $type = $data['type'] ?? 'sale';
 
         $lims_product_purchase_data = [];
         $lims_product_sale_data = [];
         $lims_product_quotation_data = [];
         $lims_product_return_data = [];
+        $lims_data = [];
 
-        foreach ($lims_purchase_data as $key => $purchase) {
-            $lims_product_purchase_data[$key] = ProductPurchase::where('purchase_id', $purchase->id)->get();
-        }
-        foreach ($lims_sale_data as $key => $sale) {
-            $lims_product_sale_data[$key] = Product_Sale::where('sale_id', $sale->id)->get();
-        }
-        foreach ($lims_quotation_data as $key => $quotation) {
-            $lims_product_quotation_data[$key] = ProductQuotation::where('quotation_id', $quotation->id)->get();
-        }
-        foreach ($lims_return_data as $key => $return) {
-            $lims_product_return_data[$key] = ProductReturn::where('return_id', $return->id)->get();
-        }
+            $lims_purchase_data = Purchase::where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+            foreach ($lims_purchase_data as $key => $purchase) {
+                $lims_product_purchase_data[$key] = ProductPurchase::where('purchase_id', $purchase->id)->get();
+            }
 
-        
+            $lims_sale_data = Sale::with('customer')->where('warehouse_id', $warehouse_id)
+            ->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)
+            ->orderBy('created_at', 'desc')->get();
+            foreach ($lims_sale_data as $key => $sale) {
+                $lims_product_sale_data[$key] = Product_Sale::where('sale_id', $sale->id);
+            }
+
+            $lims_quotation_data = Quotation::with('customer')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+            foreach ($lims_quotation_data as $key => $quotation) {
+                $lims_product_quotation_data[$key] = ProductQuotation::where('quotation_id', $quotation->id)->get();
+            }
+
+            $lims_return_data = Returns::with('customer', 'biller')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+            foreach ($lims_return_data as $key => $return) {
+                $lims_product_return_data[$key] = ProductReturn::where('return_id', $return->id)->get();
+            }
+
+            $lims_expense_data = Expense::with('expenseCategory')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+        //return DataTables::eloquent($l)->toJson();
 
         $lims_warehouse_list = Warehouse::where('is_active', true)->get();
         return view('report.warehouse_report', compact('warehouse_id', 'start_date', 'end_date', 'lims_purchase_data', 'lims_product_purchase_data', 'lims_sale_data', 'lims_product_sale_data', 'lims_warehouse_list', 'lims_quotation_data', 'lims_product_quotation_data', 'lims_return_data', 'lims_product_return_data', 'lims_expense_data'));
+    }
+
+    public function warehouseReportGet(Request $request)
+    {
+        $data = $request->all();
+        $warehouse_id = $data['warehouse_id'];
+        $start_date = $data['start_date'] ?? '';
+        $end_date = $data['end_date'] ?? '';
+        $type = $data['type'] ?? 'sale';
+
+        $lims_product_purchase_data = [];
+        $lims_product_sale_data = [];
+        $lims_product_quotation_data = [];
+        $lims_product_return_data = [];
+        $lims_data = [];
+
+        if($type == 'purchase') {
+            $lims_purchase_data = Purchase::where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+            foreach ($lims_purchase_data as $key => $purchase) {
+                $lims_data[$key] = ProductPurchase::where('purchase_id', $purchase->id)->get();
+            }
+        }
+
+        if($type == 'sale') {
+            $lims_sale_data = Sale::with('customer')->where('warehouse_id', $warehouse_id)
+            //->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)
+            ->orderBy('created_at', 'desc')->get();
+            foreach ($lims_sale_data as $key => $sale) {
+                $lims_data[$key] = Product_Sale::where('sale_id', $sale->id);
+            }
+
+            $l = Product_Sale::whereHas('sale', function ($query) use($warehouse_id, $start_date, $end_date) {
+                $query->where('warehouse_id', $warehouse_id);
+            });
+        }
+
+        if($type == 'quotation') {
+            $lims_quotation_data = Quotation::with('customer')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+            foreach ($lims_quotation_data as $key => $quotation) {
+                $lims_data[$key] = ProductQuotation::where('quotation_id', $quotation->id)->get();
+            }
+        }
+
+        if($type == 'return') {
+            $lims_return_data = Returns::with('customer', 'biller')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+            foreach ($lims_return_data as $key => $return) {
+                $lims_data[$key] = ProductReturn::where('return_id', $return->id)->get();
+            }
+        }
+
+        if($type == 'expense') {
+            $lims_data = Expense::with('expenseCategory')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
+        }
+
+        return DataTables::of($l)
+        ->editColumn('created_at', function ($line) {
+                return $line->sale->created_at->toDateString();
+            })
+        ->editColumn('reference_no', function ($line) {
+                return $line->sale->reference_no;
+            })
+        ->editColumn('customer', function ($line) {
+                return $line->sale->customer->name;
+            })
+        ->editColumn('product', function ($line) {
+                $arr = [];
+                foreach ($line->sale->products as $product_sale_data) {
+                    $product = Product::select('name')->find($product_sale_data->product_id);
+                    if($product_sale_data->variant_id) {
+                        $variant = Variant::find($product_sale_data->variant_id);
+                        $product->name .= ' ['.$variant->name.']';
+                    }
+                    $name = $product->name;
+
+                    $unit = Unit::find($product_sale_data->sale_unit_id);
+                    if($unit) {
+                        $qty = 'Qty:' . $product_sale_data->qty.' '.$unit->unit_code;
+                    }else{
+                        $qty = 'Qty:' . $product_sale_data->qty;
+                    }
+
+                    $arr[] = $name . ' <br>' . $qty . '<br>';
+                }
+
+                return $arr;
+            })
+        ->editColumn('total', function ($line) {
+                return $line->sale->grand_total;
+            })
+        ->editColumn('paid', function ($line) {
+                return $line->sale->paid_amount;
+            })
+        ->editColumn('due', function ($line) {
+                return number_format((float)($line->sale->grand_total - $line->sale->paid_amount), 2, '.', '');
+            })
+        ->editColumn('status', function ($line) {
+                if($line->sale->sale_status == 1) {
+                    return '<div class="badge badge-success">'.trans('file.Completed').'</div>';
+                }
+                else{
+                    return '<div class="badge badge-danger">'.trans('file.Pending').'</div>';
+                }
+                
+            })
+        ->editColumn('due', function ($line) {
+                return number_format((float)($line->sale->grand_total - $line->sale->paid_amount), 2, '.', '');
+            })
+        ->editColumn('payment', function ($line) {
+                $payment = Payment::where('sale_id', $line->sale_id)->first();
+                $payment_method = optional($payment)->paying_method;
+                return '<div class="badge badge-success">'.$payment_method.'</div>';
+            })
+        ->editColumn('sale_note', function ($line) {
+                return $line->sale->sale_note;
+            })
+        ->editColumn('staff_note', function ($line) {
+                return $line->sale->staff_note;
+            })
+        ->editColumn('payment_note', function ($line) {
+                $payment = Payment::where('sale_id', $line->sale_id)->first();
+                $payment_note = optional($payment)->payment_note;
+                return $payment_note;
+            })
+
+        ->rawColumns(['status', 'payment', 'product'])
+        ->make(true);
     }
 
     public function userReport(Request $request)

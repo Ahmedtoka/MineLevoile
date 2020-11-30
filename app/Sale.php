@@ -40,6 +40,10 @@ class Sale extends Model
         return $this->hasOne('App\Payment');
     }
 
+    public function products()
+    {
+        return $this->hasMany('App\Product_Sale');
+    }
     // public function cashRegisterTransaction()
     // {
     //     return $this->belongsTo('App\CashRegisterTransaction');

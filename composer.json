@@ -21,7 +21,8 @@
         "spatie/laravel-permission": "^2.12",
         "srmklive/paypal": "~1.0",
         "stripe/stripe-php": "^6.4",
-        "twilio/sdk": "^5.28"
+        "twilio/sdk": "^5.28",
+        "yajra/laravel-datatables-oracle": "~8.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

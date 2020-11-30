@@ -152,6 +152,7 @@ return [
         Srmklive\PayPal\Providers\PayPalServiceProvider::class,
         Clickatell\ClickatellServiceProvider::class,
         GeniusTS\LaravelHijri\HijriDatesServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -221,7 +222,7 @@ return [
         'Keygen' => Keygen\Keygen::class,
         'PayPal' => Srmklive\PayPal\Facades\PayPal::class,
         'Clickatell' => Clickatell\ClickatellFacade::class,
-
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     ],
 
 ];

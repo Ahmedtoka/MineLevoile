@@ -1211,7 +1211,7 @@
                                     <label>{{trans('file.Unit Discount')}}</label>
                                     <input type="text" name="edit_discount" class="form-control numkey">
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="display: none!important;">
                                     <label>{{trans('file.Unit Price')}}</label>
                                     <input type="text" name="edit_unit_price" class="form-control numkey" step="any">
                                 </div>
