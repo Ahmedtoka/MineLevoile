@@ -144,7 +144,11 @@ class AccountsController extends Controller
         $sent_money_transfer_list = [];
         
         if($data['type'] == '0' || $data['type'] == '2') {
-            $credit_list = Payment::whereNotNull('sale_id')->where('account_id', $data['account_id'])->whereDate('created_at', '>=' , $data['start_date'])->whereDate('created_at', '<=' , $data['end_date'])->get();
+            $credit_list = Payment::whereNotNull('sale_id')
+            ->where('account_id', $data['account_id'])
+            ->whereDate('created_at', '>=' , $data['start_date'])
+            ->whereDate('created_at', '<=' , $data['end_date'])
+            ->get();
 
             $recieved_money_transfer_list = MoneyTransfer::where('to_account_id', $data['account_id'])->get();
         }

@@ -51,17 +51,17 @@
 						        <div class="col-sm-12">
 						          <table class="table">
 						            <tbody>
-						           	<tr>
-						              <td>
+						           	{{-- <tr>
+						               <td>
 						                رصيد اول الدرج
-						              </td>
+						              </td> 
 						              <td>
 						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->open_amount}}</span>
 						              </td>
-						            </tr>
+						            </tr> --}}
 						            <tr>
 						              <td>
-						                إجمالي المبيعات
+						                Total Sales
 						              </td>
 						              <td>
 						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_pure_sale}}</span>
@@ -69,7 +69,7 @@
 						            </tr>
 						            <tr>
 						              <td>
-						                مبيعات الفيزا
+						                Visa Sales
 						              </td>
 						              <td>
 						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_card}}</span>
@@ -77,23 +77,23 @@
 						            </tr>
 						            <tr>
 						              <td>
-						                مبيعات الكاش
+						                Cash Sales
 						              
 						              </td><td>
 						                <span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_cash}}</span>
 						              </td>
 						            </tr>
-						            <tr class="success">
+						            {{-- <tr class="success">
 						              <th>
 						                إجمالي مصاريف الفرع             </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true" style="color:red">L.E {{$register_details->total_expense}}</span></b><br>
 						                <small>
 						                </td>
-						            </tr>
+						            </tr> --}}
 						            <tr class="success">
 						              <th>
-						                إجمالي مرتجعات الكاش             </th>
+						                Total Cash Returns             </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true" style="color:red">L.E {{$register_details->total_cash_refund}}</span></b><br>
 						                <small>
@@ -101,7 +101,7 @@
 						            </tr>
 						            <tr class="success">
 						              <th>
-						                إجمالي مرتجعات الفيزا             </th>
+						                Total Visa Returns             </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true" style="color:red">L.E {{$register_details->total_card_refund}}</span></b><br>
 						                <small>
@@ -109,7 +109,7 @@
 						            </tr>
 						            <tr class="success">
 						              <th>
-						                إجمالي المرتجعات             </th>
+						                Total Returns             </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true" style="color:red">L.E {{$register_details->total_refund}}</span></b><br>
 						                <small>
@@ -118,7 +118,7 @@
 						            
 						            <tr class="success">
 						              <th>
-						                إجمالي الكاش في الدرج 
+						                Total Cash In Register 
 						            </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true">L.E {{$register_details->open_amount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_expense }}</span></b>
@@ -126,7 +126,7 @@
 						            </tr>
 						            <tr class="success">
 						              <th>
-						                إجمالي الفيزا في الدرج 
+						                Total Visa In Register 
 						              </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true">L.E {{$register_details->total_card - $register_details->total_card_refund }}</span></b>
@@ -134,7 +134,7 @@
 						            </tr>
 						            <tr class="success">
 						              <th>
-						              	عدد شيكات الفيزا
+						              	No. of Visa receipts
 						              </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true">{{$register_details->total_card_slips}}</span></b>
@@ -143,7 +143,7 @@
 						            @if($register->close_status == 'negative')
 						            <tr class="success" style="color:red">
 						              <th>
-						                رصيد العجز
+						                Deficit Amount
 						              </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true">L.E {{$register->close_status_amount}}</span></b>
@@ -154,7 +154,7 @@
 						            @if($register->close_status == 'positive')
 						            <tr class="success" style="color:green">
 						              <th>
-						                رصيد الزيادة
+						                Excess Amount
 						              </th>
 						              <td>
 						                <b><span class="display_currency" data-currency_symbol="true">L.E {{$register->close_status_amount}}</span></b>
@@ -177,14 +177,14 @@
 						            <label for="total_card_slips">إجمالي الفيزا:*</label> <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" data-container="body" data-toggle="popover" data-placement="auto bottom" data-content="Total number of card payments used in this register" data-html="true" data-trigger="hover"></i>              <input class="form-control" required="" placeholder="Total Card Slips" name="total_card_slips" type="text" value="{{$register_details->total_card - $register_details->total_card_refund}}" id="total_card_slips" >
 						          </div>
 						        </div> 
-						        <div class="col-sm-4">
+						        <div class="col-sm-4" style="display: none;">
 						          <div class="form-group">
-						            <label for="closing_amount">أدخل مبلغ التوريد الكاش:* لا يزيد عن {{$register->register_close_amount}} جنيه</label> <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" data-container="body" data-toggle="popover" data-placement="auto bottom" data-content="Total number of cheques used in this register" data-html="true" data-trigger="hover"></i> <input class="form-control" required="" placeholder="Closing Cash Amount" name="closing_amount" type="number" value="" max="{{$register->register_close_amount}}" step=".01">
+						            <label for="closing_amount">أدخل مبلغ التوريد الكاش:* لا يزيد عن {{$register->register_close_amount}} جنيه</label> <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" data-container="body" data-toggle="popover" data-placement="auto bottom" data-content="Total number of cheques used in this register" data-html="true" data-trigger="hover"></i> <input class="form-control" required="" placeholder="Closing Cash Amount" name="closing_amount" type="number" value="{{$register->register_close_amount}}" max="{{$register->register_close_amount}}" step=".01">
 						          </div>
 						        </div> 
 						        <div class="col-sm-12">
 						          <div class="form-group">
-						            <label for="closing_note">ملاحظات:</label>
+						            <label for="closing_note">Notes:</label>
 						              <textarea class="form-control" placeholder="Closing Note" rows="3" name="closing_note" cols="50" id="closing_note"></textarea>
 						          </div>
 						          <input type="hidden" name="close_register" value="save-close-info">
