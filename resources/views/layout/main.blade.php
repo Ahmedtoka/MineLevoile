@@ -587,14 +587,14 @@
                   </li>
                   @endif
                   @if($purchase_report_active)
-                  <li id="purchase-report-menu">
+                  {{-- <li id="purchase-report-menu">
                     {!! Form::open(['route' => 'report.purchase', 'method' => 'post', 'id' => 'purchase-report-form']) !!}
                     <input type="hidden" name="start_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="end_date" value="{{date('Y-m-d')}}" />
                     <input type="hidden" name="warehouse_id" value="0" />
                     <a id="purchase-report-link" href="">{{trans('file.Purchase Report')}}</a>
                     {!! Form::close() !!}
-                  </li>
+                  </li> --}}
                   @endif
                   @if($warehouse_report_active)
                   <li id="warehouse-report-menu">
@@ -1295,24 +1295,28 @@
           $('.daterangepicker-field span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
           cstartDate = start.format('Y-MM-DD');
           cendDate = end.format('Y-MM-DD');
-          $('#account-statement-modal input[name="start_date"]').val(cstartDate);
-          $('#account-statement-modal input[name="end_date"]').val(cendDate);
+          $('input[name="start_date"]').val(cstartDate);
+          $('input[name="end_date"]').val(cendDate);
       });
       $('.daterangepicker-field').on('cancel.daterangepicker', function(ev, picker) {
           cstartDate = '';
           cendDate = '';
           $('.daterangepicker-field').val('');
-          $('#account-statement-modal input[name="start_date"]').val(cstartDate);
-          $('#account-statement-modal input[name="end_date"]').val(cendDate);
+          $('input[name="start_date"]').val(cstartDate);
+          $('input[name="end_date"]').val(cendDate);
       });
       $('.daterangepicker-field').on('apply.daterangepicker', function(ev, picker) {
           $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-          $('#account-statement-modal input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
-          $('#account-statement-modal input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+          $('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+          $('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
       });
 
       $('.selectpicker').selectpicker({
           style: 'btn-link',
+      });
+
+      $(document).bind("contextmenu", function(e) {
+          return false;
       });
     </script>
   </body>

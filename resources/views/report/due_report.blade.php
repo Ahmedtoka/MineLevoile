@@ -5,7 +5,6 @@
         <div class="card">
             <div class="card-header mt-2">
                 <h4 class="text-center">{{trans('file.Due Report')}}</h4>
-                <h2 class="text-center">{{$start_date}} To {{$end_date}}</h2>
             </div>
             {!! Form::open(['route' => 'report.dueByDate', 'method' => 'post']) !!}
             <div class="col-md-12 mt-4">

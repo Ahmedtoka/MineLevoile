@@ -4,7 +4,6 @@
         <div class="card">
             <div class="card-header mt-2">
                 <h3 class="text-center">{{trans('file.Warehouse Report')}}</h3>
-                <h2 style="text-align:center;">{{$start_date}} To {{$end_date}}</h2>
             </div>
             {!! Form::open(['route' => 'report.warehouse', 'method' => 'post']) !!}
             <div class="row mb-3">
@@ -115,86 +114,6 @@
             </div>
         </div>
 
-        <div role="tabpanel" class="tab-pane fade" id="warehouse-purchase">
-            <div class="table-responsive mb-4">
-                <table id="purchase-table" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="not-exported-purchase"></th>
-                            <th>{{trans('file.Date')}}</th>
-                            <th>{{trans('file.reference')}} No</th>
-                            <th>{{trans('file.Supplier')}}</th>
-                            <th>{{trans('file.product')}} ({{trans('file.qty')}})</th>
-                            <th>{{trans('file.grand total')}}</th>
-                            <th>{{trans('file.Paid')}}</th>
-                            <th>{{trans('file.Due')}}</th>
-                            <th>{{trans('file.Status')}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($lims_purchase_data as $key=>$purchase)
-                        <tr>
-                            <td>{{$key}}</td>
-                            <?php 
-                                $supplier = DB::table('suppliers')->find($purchase->supplier_id);
-                            ?>
-                            <td>{{date($general_setting->date_format, strtotime($purchase->created_at->toDateString())) . ' '. $purchase->created_at->toTimeString()}}</td>
-                            <td>{{$purchase->reference_no}}</td>
-                            @if($supplier)
-                            <td>{{$supplier->name}}</td>
-                            @else
-                            <td>N/A</td>
-                            @endif
-                            <td>
-                                @foreach($lims_product_purchase_data[$key] as $product_purchase_data)
-                                <?php 
-                                    $product = App\Product::select('name')->find($product_purchase_data->product_id);
-                                    if($product_purchase_data->variant_id) {
-                                        $variant = App\Variant::find($product_purchase_data->variant_id);
-                                        $product->name .= ' ['.$variant->name.' ]';
-                                    }
-                                    $unit = App\Unit::find($product_purchase_data->purchase_unit_id);
-                                ?>
-                                @if($unit)
-                                    {{$product->name.' ('.$product_purchase_data->qty.' '.$unit->unit_code.')'}}
-                                @else
-                                    {{$product->name.' ('.$product_purchase_data->qty.')'}}
-                                @endif
-                                <br>
-                                @endforeach
-                            </td>
-                            <td>{{$purchase->grand_total}}</td>
-                            <td>{{$purchase->paid_amount}}</td>
-                            <td>{{number_format((float)($purchase->grand_total - $purchase->paid_amount), 2, '.', '')}}</td>
-                            @if($purchase->status == 1)
-                            <td><div class="badge badge-success">{{trans('file.Completed')}}</div></td>
-                            @elseif($purchase->status == 2)
-                            <td><div class="badge badge-success">{{trans('file.Partial')}}</div></td>
-                            @elseif($purchase->status == 3)
-                            <td><div class="badge badge-success">{{trans('file.Pending')}}</div></td>
-                            @else
-                            <td><div class="badge badge-danger">{{trans('file.Ordered')}}</div></td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="tfoot active">
-                        <tr>
-                            <th></th>
-                            <th>Total:</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th>0.00</th>
-                            <th>0.00</th>
-                            <th>0.00</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
         <div role="tabpanel" class="tab-pane fade" id="warehouse-return">
             <div class="table-responsive mb-4">
                 <table id="return-table" class="table table-hover">
@@ -230,45 +149,6 @@
                 </table>
             </div>
         </div>
-
-        {{-- <div role="tabpanel" class="tab-pane fade" id="warehouse-expense">
-            <div class="table-responsive mb-4">
-                <table id="expense-table" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th class="not-exported-expense"></th>
-                            <th>{{trans('file.Date')}}</th>
-                            <th>{{trans('file.reference')}}</th>
-                            <th>{{trans('file.category')}}</th>
-                            <th>{{trans('file.Amount')}}</th>
-                            <th>{{trans('file.Note')}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($lims_expense_data as $key=>$expense)
-                        <tr>
-                            <td>{{$key}}</td>
-                            <td>{{ date($general_setting->date_format, strtotime($expense->created_at->toDateString())) }}<br>{{ $expense->created_at->toTimeString() }}</td>
-                            <td>{{$expense->reference_no}}</td>
-                            <td>{{$expense->expenseCategory->name}}</td>
-                            <td>{{$expense->amount}}</td>
-                            <td>{{$expense->note}}</td>     
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="tfoot active">
-                        <tr>
-                            <th></th>
-                            <th>Total:</th>
-                            <th></th>
-                            <th></th>
-                            <th>0.00</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div> --}}
     </div>
 </section>
 
@@ -337,6 +217,7 @@
             dom: 'Blfrtip',
             scrollX:        true,
             scrollCollapse: true,
+            bFilter: false,
             ajax: {
                 url: url,
                 type: 'GET',
@@ -352,18 +233,18 @@
             deferRender: true,
             smart: true,
             columns: [
-                { data: 'created_at' },
-                { data: 'reference_no', width: '100%'},
-                { data: 'customer', width: '100%'},
-                { data: 'product', width: '100%'},
-                { data: 'total', width: '100%'},
-                { data: 'paid', width: '100%'},
-                { data: 'due', width: '100%'},
-                { data: 'status', width: '100%'},
-                { data: 'payment', width: '100%'},
-                { data: 'sale_note', width: '100%'},
-                { data: 'staff_note', width: '100%'},
-                { data: 'payment_note', width: '100%'},
+                { data: 'created_at', searchable: false },
+                { data: 'reference_no', searchable: false, width: '100%'},
+                { data: 'customer', width: '100%', searchable: false },
+                { data: 'product', width: '100%', searchable: false },
+                { data: 'total', width: '100%', searchable: false },
+                { data: 'paid', width: '100%', searchable: false },
+                { data: 'due', width: '100%', searchable: false },
+                { data: 'status', width: '100%', searchable: false },
+                { data: 'payment', width: '100%', searchable: false },
+                { data: 'sale_note', width: '100%', searchable: false },
+                { data: 'staff_note', width: '100%', searchable: false },
+                { data: 'payment_note', width: '100%', searchable: false },
             ],
             "order": [],
             // 'columnDefs': [
@@ -466,6 +347,7 @@
             dom: 'Blfrtip',
             scrollX:        true,
             scrollCollapse: true,
+            bFilter: false,
             ajax: {
                 url: url,
                 type: 'GET',
@@ -481,15 +363,15 @@
             deferRender: true,
             smart: true,
             columns: [
-                { data: 'created_at' },
-                { data: 'reference_no', width: '100%'},
-                { data: 'customer', width: '100%'},
-                { data: 'biller', width: '100%'},
-                { data: 'product', width: '100%'},
-                { data: 'total', width: '100%'},
-                { data: 'return_note', width: '100%'},
-                { data: 'staff_note', width: '100%'},
-                { data: 'created_by', width: '100%'},
+                { data: 'created_at', searchable: false },
+                { data: 'reference_no', searchable: false, width: '100%'},
+                { data: 'customer', width: '100%', searchable: false},
+                { data: 'biller', width: '100%', searchable: false},
+                { data: 'product', width: '100%', searchable: false },
+                { data: 'total', width: '100%', searchable: false},
+                { data: 'return_note', width: '100%', searchable: false},
+                { data: 'staff_note', width: '100%', searchable: false},
+                { data: 'created_by', width: '100%', searchable: false},
             ],
             "order": [],
             'lengthMenu': [[100, 200, 300, -1], [100, 200, 300, "All"]],
@@ -557,283 +439,13 @@
         }
     }
 
-    // $('#purchase-table').DataTable( {
-    //     "order": [],
-    //     'columnDefs': [
-    //         {
-    //             "orderable": false,
-    //             'targets': 0
-    //         },
-    //         {
-    //             'render': function(data, type, row, meta){
-    //                 if(type === 'display'){
-    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-    //                 }
-
-    //                return data;
-    //             },
-    //             'checkboxes': {
-    //                'selectRow': true,
-    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-    //             },
-    //             'targets': [0]
-    //         }
-    //     ],
-    //     'select': { style: 'multi',  selector: 'td:first-child'},
-    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-    //     dom: '<"row"lfB>rtip',
-    //     buttons: [
-    //         {
-    //             extend: 'pdf',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-purchase)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_purchase(dt, true);
-    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_purchase(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'csv',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-purchase)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_purchase(dt, true);
-    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_purchase(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'print',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-purchase)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_purchase(dt, true);
-    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-    //                 datatable_sum_purchase(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'colvis',
-    //             columns: ':gt(0)'
-    //         }
-    //     ],
-    //     drawCallback: function () {
-    //         var api = this.api();
-    //         datatable_sum_purchase(api, false);
-    //     }
-    // } );
-
-    // function datatable_sum_purchase(dt_selector, is_calling_first) {
-    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-    //         var rows = dt_selector.rows( '.selected' ).indexes();
-
-    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-    //     }
-    //     else {
-    //         $( dt_selector.column( 5 ).footer() ).html(dt_selector.column( 5, {page:'current'} ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-    //         $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 7, { page: 'current' } ).data().sum().toFixed(2));
-    //     }
-    // }
-
-
-    // $('#return-table').DataTable( {
-    //     "order": [],
-    //     'columnDefs': [
-    //         {
-    //             "orderable": false,
-    //             'targets': 0
-    //         },
-    //         {
-    //             'render': function(data, type, row, meta){
-    //                 if(type === 'display'){
-    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-    //                 }
-
-    //                return data;
-    //             },
-    //             'checkboxes': {
-    //                'selectRow': true,
-    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-    //             },
-    //             'targets': [0]
-    //         }
-    //     ],
-    //     'select': { style: 'multi',  selector: 'td:first-child'},
-    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-    //     dom: '<"row"lfB>rtip',
-    //     buttons: [
-    //         {
-    //             extend: 'pdf',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-return)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_return(dt, true);
-    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_return(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'csv',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_return(dt, true);
-    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_return(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'print',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_return(dt, true);
-    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-    //                 datatable_sum_return(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'colvis',
-    //             columns: ':gt(0)'
-    //         }
-    //     ],
-    //     drawCallback: function () {
-    //         var api = this.api();
-    //         datatable_sum_return(api, false);
-    //     }
-    // } );
-
-    // function datatable_sum_return(dt_selector, is_calling_first) {
-    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-    //         var rows = dt_selector.rows( '.selected' ).indexes();
-
-    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed(2));
-    //     }
-    //     else {
-    //         $( dt_selector.column( 6 ).footer() ).html(dt_selector.column( 6, {page:'current'} ).data().sum().toFixed(2));
-    //     }
-    // }
-
-    // $('#expense-table').DataTable( {
-    //     "order": [],
-    //     'columnDefs': [
-    //         {
-    //             "orderable": false,
-    //             'targets': 0
-    //         },
-    //         {
-    //             'render': function(data, type, row, meta){
-    //                 if(type === 'display'){
-    //                     data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-    //                 }
-
-    //                return data;
-    //             },
-    //             'checkboxes': {
-    //                'selectRow': true,
-    //                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-    //             },
-    //             'targets': [0]
-    //         }
-    //     ],
-    //     'select': { style: 'multi',  selector: 'td:first-child'},
-    //     'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-    //     dom: '<"row"lfB>rtip',
-    //     buttons: [
-    //         {
-    //             extend: 'pdf',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported-expense)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_expense(dt, true);
-    //                 $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_expense(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'csv',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_expense(dt, true);
-    //                 $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-    //                 datatable_sum_expense(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'print',
-    //             exportOptions: {
-    //                 columns: ':visible:Not(.not-exported)',
-    //                 rows: ':visible'
-    //             },
-    //             action: function(e, dt, button, config) {
-    //                 datatable_sum_expense(dt, true);
-    //                 $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-    //                 datatable_sum_expense(dt, false);
-    //             },
-    //             footer:true
-    //         },
-    //         {
-    //             extend: 'colvis',
-    //             columns: ':gt(0)'
-    //         }
-    //     ],
-    //     drawCallback: function () {
-    //         var api = this.api();
-    //         datatable_sum_expense(api, false);
-    //     }
-    // } );
-
-    // function datatable_sum_expense(dt_selector, is_calling_first) {
-    //     if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
-    //         var rows = dt_selector.rows( '.selected' ).indexes();
-
-    //         $( dt_selector.column( 4 ).footer() ).html(dt_selector.cells( rows, 4, { page: 'current' } ).data().sum().toFixed(2));
-    //     }
-    //     else {
-    //         $( dt_selector.column( 4 ).footer() ).html(dt_selector.column( 4, {page:'current'} ).data().sum().toFixed(2));
-    //     }
-    // }
-$(".daterangepicker-field").daterangepicker({
-  callback: function(startDate, endDate, period){
-    var start_date = startDate.format('YYYY-MM-DD');
-    var end_date = endDate.format('YYYY-MM-DD');
-    var title = start_date + ' To ' + end_date;
-    $(this).val(title);
-    $('input[name="start_date"]').val(start_date);
-    $('input[name="end_date"]').val(end_date);
-  }
-});
-
 
 
 </script>
+
+<style>
+    .dataTables_filter {
+        display: none!important;
+    }
+</style>
 @endsection

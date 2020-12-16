@@ -2,7 +2,6 @@
 @section('content')
 <section>
 	<h3 class="text-center">{{trans('file.Summary Report')}}</h3>
-	<h2 class="text-center">{{$start_date}} To {{$end_date}}</h2>
 	{!! Form::open(['route' => 'report.profitLoss', 'method' => 'post']) !!}
 	<div class="col-md-12 mt-4">
 		

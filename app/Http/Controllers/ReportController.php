@@ -501,8 +501,8 @@ class ReportController extends Controller
 
     public function profitLoss(Request $request)
     {
-        $start_date = $request['start_date'];
-        $end_date = $request['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $query1 = array(
             'SUM(grand_total) AS grand_total',
             'SUM(paid_amount) AS paid_amount',
@@ -593,8 +593,8 @@ class ReportController extends Controller
     public function productReport(Request $request)
     {
         $data = $request->all();
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $warehouse_id = $data['warehouse_id'];
         $lims_product_all = Product::select('id', 'name', 'qty', 'is_variant')->where('is_active', true)->get();
         $product_id = [];
@@ -739,18 +739,24 @@ class ReportController extends Controller
     public function purchaseReport(Request $request)
     {
     	$data = $request->all();
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $warehouse_id = $data['warehouse_id'];
         $lims_product_all = Product::select('id', 'name', 'qty', 'is_variant')->where('is_active', true)->get();
+        $product_id = '';
+        $variant_id = ''; 
+        $product_qty = '';
+        $product_name = '';
         foreach ($lims_product_all as $product) {
             $lims_product_purchase_data = null;
             $variant_id_all = [];
             if($warehouse_id == 0) {
-                if($product->is_variant)
+                if($product->is_variant){
                     $variant_id_all = ProductPurchase::distinct('variant_id')->where('product_id', $product->id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->pluck('variant_id');
-                else
+                }
+                else{
                     $lims_product_purchase_data = ProductPurchase::where('product_id', $product->id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->first();
+                }
             }
             else {
                 if($product->is_variant)
@@ -810,8 +816,8 @@ class ReportController extends Controller
     public function saleReport(Request $request)
     {
     	$data = $request->all();
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $warehouse_id = $data['warehouse_id'];
         $product_id = [];
         $variant_id = [];
@@ -896,43 +902,12 @@ class ReportController extends Controller
     {
         $data = $request->all();
         $warehouse_id = $data['warehouse_id'];
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $type = $data['type'] ?? 'sale';
 
-        $lims_product_purchase_data = [];
-        $lims_product_sale_data = [];
-        $lims_product_quotation_data = [];
-        $lims_product_return_data = [];
-        $lims_data = [];
-
-            $lims_purchase_data = Purchase::where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-            foreach ($lims_purchase_data as $key => $purchase) {
-                $lims_product_purchase_data[$key] = ProductPurchase::where('purchase_id', $purchase->id)->get();
-            }
-
-            $lims_sale_data = Sale::with('customer')->where('warehouse_id', $warehouse_id)
-            ->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)
-            ->orderBy('created_at', 'desc')->get();
-            foreach ($lims_sale_data as $key => $sale) {
-                $lims_product_sale_data[$key] = Product_Sale::where('sale_id', $sale->id);
-            }
-
-            $lims_quotation_data = Quotation::with('customer')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-            foreach ($lims_quotation_data as $key => $quotation) {
-                $lims_product_quotation_data[$key] = ProductQuotation::where('quotation_id', $quotation->id)->get();
-            }
-
-            $lims_return_data = Returns::with('customer', 'biller')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-            foreach ($lims_return_data as $key => $return) {
-                $lims_product_return_data[$key] = ProductReturn::where('return_id', $return->id)->get();
-            }
-
-            $lims_expense_data = Expense::with('expenseCategory')->where('warehouse_id', $warehouse_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
-        //return DataTables::eloquent($l)->toJson();
-
         $lims_warehouse_list = Warehouse::where('is_active', true)->get();
-        return view('report.warehouse_report', compact('warehouse_id', 'start_date', 'end_date', 'lims_purchase_data', 'lims_product_purchase_data', 'lims_sale_data', 'lims_product_sale_data', 'lims_warehouse_list', 'lims_quotation_data', 'lims_product_quotation_data', 'lims_return_data', 'lims_product_return_data', 'lims_expense_data'));
+        return view('report.warehouse_report', compact('warehouse_id', 'start_date', 'end_date', 'lims_warehouse_list'));
     }
 
     public function warehouseReportGet(Request $request)
@@ -1127,8 +1102,8 @@ class ReportController extends Controller
     {
         $data = $request->all();
         $user_id = $data['user_id'];
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $lims_product_sale_data = [];
         $lims_product_purchase_data = [];
         $lims_product_quotation_data = [];
@@ -1168,8 +1143,8 @@ class ReportController extends Controller
     {
     	$data = $request->all();
         $customer_id = $data['customer_id'];
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $lims_sale_data = Sale::with('warehouse')->where('customer_id', $customer_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
         $lims_quotation_data = Quotation::with('warehouse')->where('customer_id', $customer_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
         $lims_return_data = Returns::with('warehouse', 'biller')->where('customer_id', $customer_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
@@ -1203,8 +1178,8 @@ class ReportController extends Controller
     {
         $data = $request->all();
         $supplier_id = $data['supplier_id'];
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $lims_purchase_data = Purchase::with('warehouse')->where('supplier_id', $supplier_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
         $lims_quotation_data = Quotation::with('warehouse', 'customer')->where('supplier_id', $supplier_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
         $lims_return_data = ReturnPurchase::with('warehouse')->where('supplier_id', $supplier_id)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->orderBy('created_at', 'desc')->get();
@@ -1237,8 +1212,8 @@ class ReportController extends Controller
     public function dueReportByDate(Request $request)
     {
     	$data = $request->all();
-        $start_date = $data['start_date'];
-        $end_date = $data['end_date'];
+        $start_date = $data['start_date'] ?? Carbon::now()->startOfMonth();
+        $end_date = $data['end_date'] ?? Carbon::now()->endOfMonth();
         $lims_sale_data = Sale::where('payment_status', '!=', 4)->whereDate('created_at', '>=' , $start_date)->whereDate('created_at', '<=' , $end_date)->get();
 
         return view('report.due_report', compact('lims_sale_data', 'start_date', 'end_date'));
