@@ -15,7 +15,7 @@ class CouponController extends Controller
     {
         $role = Role::find(Auth::user()->role_id);
         if($role->hasPermissionTo('unit')) {
-            $lims_coupon_all = Coupon::where('is_active', true)->orderBy('id', 'desc')->get();
+            $lims_coupon_all = Coupon::orderBy('is_active', 'desc')->get();
             return view('coupon.index', compact('lims_coupon_all'));
         }
         else

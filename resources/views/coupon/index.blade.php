@@ -4,10 +4,10 @@
     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{{ $errors->first('coupon_no') }}</div>
 @endif
 @if(session()->has('message'))
-  <div class="alert alert-success alert-dismissible text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{!! session()->get('message') !!}</div> 
+  <div class="alert alert-success alert-dismissible text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{!! session()->get('message') !!}</div>
 @endif
 @if(session()->has('not_permitted'))
-  <div class="alert alert-danger alert-dismissible text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{{ session()->get('not_permitted') }}</div> 
+  <div class="alert alert-danger alert-dismissible text-center"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{{ session()->get('not_permitted') }}</div>
 @endif
 
 <section>
@@ -32,7 +32,7 @@
             </thead>
             <tbody>
                 @foreach($lims_coupon_all as $key=>$coupon)
-                <?php 
+                <?php
                     $created_by = DB::table('users')->find($coupon->user_id);
                 ?>
                 <tr data-id="{{$coupon->id}}">
@@ -54,6 +54,11 @@
                     <td class="text-center"><div class="badge badge-success">{{ $coupon->quantity - $coupon->used }}</div></td>
                     @else
                     <td class="text-center"><div class="badge badge-danger">{{ $coupon->quantity - $coupon->used }}</div></td>
+                    @endif
+                    @if($coupon->is_active == 1)
+                    <td class="text-center"><div class="badge badge-success">Active</div></td>
+                    @else
+                    <td class="text-center"><div class="badge badge-danger">DeActiveted</div></td>
                     @endif
                     @if($coupon->expired_date >= date("Y-m-d"))
                       <td><div class="badge badge-success">{{date('d-m-Y', strtotime($coupon->expired_date))}}</div></td>
@@ -199,6 +204,13 @@
                     <label>Qty *</label>
                     <input type="number" name="quantity" step="any" required class="form-control">
                 </div>
+                  <div class="col-md-6 form-group">
+                      <label>Status</label>
+                      <select class="form-control" name="is_active">
+                          <option value="1">Active</option>
+                          <option value="0">DeActiveted</option>
+                      </select>
+                  </div>
                 <div class="col-md-6 form-group">
                     <label>{{trans('file.Expired Date')}}</label>
                     <input type="text" name="expired_date" class="expired_date form-control">
@@ -221,7 +233,7 @@
 
     var coupon_id = [];
     var user_verified = <?php echo json_encode(env('USER_VERIFIED')) ?>;
-    
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -236,7 +248,7 @@
           $("#create-modal .minimum-amount").show();
           $("#create-modal .minimum-amount").prop('required',true);
           $("#create-modal .icon-text").text('$');
-      } 
+      }
       else {
           $("#create-modal .minimum-amount").hide();
           $("#create-modal .minimum-amount").prop('required',false);
@@ -249,7 +261,7 @@
           $("#editModal .minimum-amount").show();
           $("#editModal .minimum-amount").prop('required',true);
           $("#editModal .icon-text").text('$');
-      } 
+      }
       else {
           $("#editModal .minimum-amount").hide();
           $("#editModal .minimum-amount").prop('required',false);
@@ -259,7 +271,7 @@
 
     $('#create-modal .genbutton').on("click", function(){
       $.get('coupons/gencode', function(data){
-        $("input[name='code']").val(data);      
+        $("input[name='code']").val(data);
       });
     });
 
